@@ -1,0 +1,28 @@
+[
+    {
+        "name": "theme_info",
+        "theme_name": "Custom Theme",
+        "theme_author": "Oneth Dias",
+        "theme_version": "1.0.0",
+        "theme_documentation_url": "https://shopify.dev/docs/api/shopify-cli",
+        "theme_support_url": "https://shopify.dev/docs/api/shopify-cli"
+    },
+    {
+        "name": "Typography",
+        "settings": [
+            {
+            "type": "font_picker",
+            "id": "heading_font",
+            "label": "Heading Font",
+            "default": "helvetica_n4"
+            },
+           {
+            "type": "font_picker",
+            "id": "body_font",
+            "label": "Body Font",
+            "default": "helvetica_n4"
+           }
+
+        ]
+    }
+]

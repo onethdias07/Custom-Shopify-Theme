@@ -1,0 +1,270 @@
+
+
+<div class="cart-container">
+  <div class="cart-header">
+  <h1 class="cart-title">{{ 'cart.title' | t }}</h1>
+    <p class="cart-count">
+      {% if cart.item_count > 0 %}
+        {{ cart.item_count }} {% if cart.item_count == 1 %}item{% else %}items{% endif %} in your cart
+      {% else %}
+        {{ 'cart.empty' | t }}
+      {% endif %}
+    </p>
+  </div>
+
+  {% if cart.item_count > 0 %}
+    <form action="{{ routes.cart_url }}" method="post" novalidate class="cart-form">
+      <div class="cart-content">
+        <div class="cart-items">
+          {% for item in cart.items %}
+            <div class="cart-item" data-cart-item="{{ item.variant.id }}">
+              <div class="item-image">
+                {% if item.image %}
+                  <img src="{{ item.image | image_url: width: 200 }}" 
+                       alt="{{ item.product.title | escape }}" 
+                       class="item-image">
+                {% else %}
+                  <img src="{{ 'no-image.svg' | asset_url }}" 
+                       alt="{{ item.product.title | escape }}" 
+                       class="item-image">
+                {% endif %}
+              </div>
+
+              <div class="item-details">
+                <a href="{{ item.product.url }}" class="item-title">
+                  {{ item.product.title }}
+                </a>
+                
+                {% unless item.variant.title contains 'Default' %}
+                  <div class="item-variant">
+                    {{ item.variant.title }}
+                  </div>
+                {% endunless %}
+
+                {% if item.variant.available %}
+                  <div class="item-price">
+                    {{ item.price | money }}
+                    {% if item.variant.compare_at_price > item.price %}
+                      <span class="compare-price">{{ item.variant.compare_at_price | money }}</span>
+                    {% endif %}
+                  </div>
+                {% else %}
+                  <div class="item-price" style="color: #dc3545;">
+                    Sold out
+                  </div>
+                {% endif %}
+              </div>
+
+              <div class="quantity-controls">
+                <button type="button" class="quantity-btn" onclick="updateQuantity('{{ item.variant.id }}', {{ item.quantity | minus: 1 }})">
+                  −
+                </button>
+                <input type="number" 
+                       class="quantity-input" 
+                       name="updates[{{ item.variant.id }}]" 
+                       value="{{ item.quantity }}" 
+                       min="0"
+                       onchange="updateCartQuantity(this)">
+                <button type="button" class="quantity-btn" onclick="updateQuantity('{{ item.variant.id }}', {{ item.quantity | plus: 1 }})">
+                  +
+                </button>
+              </div>
+
+              <div class="item-total">
+                {{ item.line_price | money }}
+              </div>
+
+              <button type="button" class="remove-item" onclick="updateQuantity('{{ item.variant.id }}', 0)" title="Remove item">
+                ×
+              </button>
+            </div>
+          {% endfor %}
+        </div>
+
+        <div class="cart-summary">
+          <h2 class="summary-title">Order Summary</h2>
+          
+          <div class="summary-row">
+            <span class="summary-label">Subtotal:</span>
+            <span class="summary-value">{{ cart.total_price | money }}</span>
+          </div>
+
+          {% if cart.total_discount > 0 %}
+            <div class="summary-row">
+              <span class="summary-label">Discount:</span>
+              <span class="summary-value" style="color: #28a745;">-{{ cart.total_discount | money }}</span>
+            </div>
+          {% endif %}
+
+          <div class="summary-row">
+            <span class="summary-label">Shipping:</span>
+            <span class="summary-value">Calculated at checkout</span>
+          </div>
+
+          <div class="summary-row">
+            <span class="summary-label">Tax:</span>
+            <span class="summary-value">Calculated at checkout</span>
+          </div>
+
+          <div class="summary-row">
+            <span class="summary-label">Total:</span>
+            <span class="summary-value total-price">{{ cart.total_price | money }}</span>
+          </div>
+
+          <a href="/checkout" class="checkout-btn">
+            Proceed to Checkout
+           </a>
+
+          <a href="{{ routes.all_products_collection_url }}" class="continue-shopping">
+            {{ 'cart.continue_shopping' | t }}
+          </a>
+
+          <div class="cart-notes">
+            <label for="cart-note">Order Notes:</label>
+            <textarea name="note" id="cart-note" placeholder="Special instructions for your order...">{{ cart.note }}</textarea>
+          </div>
+        </div>
+      </div>
+    </form>
+
+  {% else %}
+    <!-- Empty Cart State -->
+    <div class="empty-cart">
+      <div class="empty-cart-icon">🛒</div>
+      <h2 class="empty-cart-title">Your cart is empty</h2>
+      <p class="empty-cart-text">
+        Looks like you haven't added any items to your cart yet. 
+        Start shopping to fill it up!
+      </p>
+      <a href="{{ routes.all_products_collection_url }}" class="shop-now-btn">
+        Start Shopping
+      </a>
+    </div>
+  {% endif %}
+</div>
+
+<script>
+  // Update cart quantity using Shopify AJAX Cart API
+  function updateQuantity(variantId, newQuantity) {
+    // Show loading state
+    const cartItem = document.querySelector(`[data-cart-item="${variantId}"]`);
+    if (cartItem) {
+      cartItem.style.opacity = '0.5';
+    }
+    
+    const updates = {};
+    updates[variantId] = newQuantity;
+    
+    fetch('/cart/update.js', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      body: JSON.stringify({ updates: updates })
+    })
+    .then(response => response.json())
+    .then(data => {
+      // Reload page to show updated cart
+      location.reload();
+    })
+    .catch(error => {
+      console.error('Error updating cart:', error);
+      // Remove loading state on error
+      if (cartItem) {
+        cartItem.style.opacity = '1';
+      }
+      alert('Error updating cart. Please try again.');
+    });
+  }
+
+  // Handle quantity input changes
+  function updateCartQuantity(input) {
+    const variantId = input.name.match(/\d+/)[0];
+    const quantity = parseInt(input.value);
+    
+    if (quantity >= 0) {
+      updateQuantity(variantId, quantity);
+    } else {
+      // Reset to previous value if invalid
+      input.value = 1;
+    }
+  }
+
+  // Handle cart form submission
+  document.querySelector('.cart-form')?.addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    // Get all quantity inputs
+    const quantities = {};
+    const quantityInputs = this.querySelectorAll('input[name*="updates"]');
+    
+    quantityInputs.forEach(input => {
+      const variantId = input.name.match(/\d+/)[0];
+      quantities[variantId] = parseInt(input.value);
+    });
+    
+    // Update cart with current quantities first
+    fetch('/cart/update.js', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      body: JSON.stringify({ 
+        updates: quantities,
+        note: document.getElementById('cart-note')?.value || ''
+      })
+    })
+    .then(response => response.json())
+    .then(() => {
+      // Then proceed to checkout
+      window.location.href = '/checkout';
+    })
+    .catch(error => {
+      console.error('Error updating cart:', error);
+      alert('Error processing checkout. Please try again.');
+    });
+  });
+
+  // Auto-save cart notes
+  const cartNoteTextarea = document.getElementById('cart-note');
+  if (cartNoteTextarea) {
+    let noteTimeout;
+    cartNoteTextarea.addEventListener('input', function() {
+      clearTimeout(noteTimeout);
+      noteTimeout = setTimeout(() => {
+        fetch('/cart/update.js', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+          },
+          body: JSON.stringify({ note: this.value })
+        })
+        .catch(error => {
+          console.error('Error saving note:', error);
+        });
+      }, 1000); // Save after 1 second of no typing
+    });
+  }
+
+  // Prevent quantity from going below 0
+  document.querySelectorAll('.quantity-input').forEach(input => {
+    input.addEventListener('input', function() {
+      if (parseInt(this.value) < 0) {
+        this.value = 0;
+      }
+    });
+  });
+
+  // Add loading states to quantity buttons
+  document.querySelectorAll('.quantity-btn').forEach(button => {
+    button.addEventListener('click', function() {
+      this.disabled = true;
+      setTimeout(() => {
+        this.disabled = false;
+      }, 2000); // Re-enable after 2 seconds
+    });
+  });
+</script>

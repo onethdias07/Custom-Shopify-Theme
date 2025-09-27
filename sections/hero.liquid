@@ -1,0 +1,386 @@
+{% comment %}
+  Hero Section - Minimalist Ecommerce Theme
+  Supports background image, content overlay, and customizable content
+{% endcomment %}
+
+<section class="hero-section hero-section--{{ section.settings.section_height }} hero-section--{{ section.settings.text_alignment }}" 
+  {% if section.settings.background_image or section.settings.section_height == 'custom' %}
+    style="{% if section.settings.background_image %}background-image: url('{{ section.settings.background_image | image_url: width: 1920 }}'); 
+           {% if section.settings.background_position == 'custom' %}
+             background-position: {{ section.settings.background_position_x }}% {{ section.settings.background_position_y }}%;
+           {% else %}
+             background-position: {{ section.settings.background_position }};
+           {% endif %}
+           background-size: {{ section.settings.background_size }};
+           background-repeat: {{ section.settings.background_repeat }};{% endif %}
+           {% if section.settings.section_height == 'custom' %}
+             min-height: {{ section.settings.custom_height }}px;
+             {% assign custom_padding = section.settings.custom_height | divided_by: 6 %}
+             {% if custom_padding < 60 %}{% assign custom_padding = 60 %}{% endif %}
+             {% if custom_padding > 160 %}{% assign custom_padding = 160 %}{% endif %}
+             padding: {{ custom_padding }}px 40px;
+           {% endif %}"
+  {% endif %}>
+  
+  {% if section.settings.background_image and section.settings.overlay_enabled %}
+    <div class="hero-overlay" style="background-color: {{ section.settings.overlay_color }}; opacity: {{ section.settings.overlay_opacity | divided_by: 100.0 }};"></div>
+  {% endif %}
+  
+  <div class="container">
+    <div class="hero-content">
+      
+      {% if section.settings.eyebrow_text != blank %}
+        <p class="hero-eyebrow">{{ section.settings.eyebrow_text }}</p>
+      {% endif %}
+      
+      {% if section.settings.title != blank %}
+        <h1 class="hero-title">{{ section.settings.title }}</h1>
+      {% endif %}
+      
+      {% if section.settings.subtitle != blank %}
+        <p class="hero-subtitle">{{ section.settings.subtitle }}</p>
+      {% endif %}
+      
+      <div class="hero-actions">
+        {% if section.settings.primary_button_text != blank %}
+          <a href="{{ section.settings.primary_button_link | default: '#' }}" 
+             class="hero-cta hero-cta--primary"
+             style="padding: {{ section.settings.button_padding_vertical }}px {{ section.settings.button_padding_horizontal }}px; border-radius: {{ section.settings.button_border_radius }}px;">
+            {{ section.settings.primary_button_text }}
+          </a>
+        {% endif %}
+        
+        {% if section.settings.secondary_button_text != blank %}
+          <a href="{{ section.settings.secondary_button_link | default: '#' }}" 
+             class="hero-cta hero-cta--secondary"
+             style="padding: {{ section.settings.button_padding_vertical }}px {{ section.settings.button_padding_horizontal }}px; border-radius: {{ section.settings.button_border_radius }}px;">
+            {{ section.settings.secondary_button_text }}
+          </a>
+        {% endif %}
+      </div>
+      
+    </div>
+  </div>
+</section>
+
+
+
+{% schema %}
+{
+  "name": "Hero Section",
+  "tag": "section",
+  "class": "hero-section-wrapper",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Hero Content"
+    },
+    {
+      "type": "text",
+      "id": "eyebrow_text",
+      "label": "Eyebrow Text",
+      "default": "Welcome to our store"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Hero Title",
+      "default": "Discover Something Amazing"
+    },
+    {
+      "type": "textarea",
+      "id": "subtitle",
+      "label": "Hero Subtitle",
+      "default": "Explore our carefully curated collection of premium products designed to enhance your everyday life."
+    },
+    {
+      "type": "header",
+      "content": "Call to Action Buttons"
+    },
+    {
+      "type": "text",
+      "id": "primary_button_text",
+      "label": "Primary Button Text",
+      "default": "Shop Now"
+    },
+    {
+      "type": "url",
+      "id": "primary_button_link",
+      "label": "Primary Button Link"
+    },
+    {
+      "type": "text",
+      "id": "secondary_button_text",
+      "label": "Secondary Button Text",
+      "default": "Learn More"
+    },
+    {
+      "type": "url",
+      "id": "secondary_button_link",
+      "label": "Secondary Button Link"
+    },
+    {
+      "type": "header",
+      "content": "Button Styling"
+    },
+    {
+      "type": "range",
+      "id": "button_padding_vertical",
+      "label": "Button Vertical Padding",
+      "min": 8,
+      "max": 30,
+      "step": 2,
+      "unit": "px",
+      "default": 18
+    },
+    {
+      "type": "range",
+      "id": "button_padding_horizontal",
+      "label": "Button Horizontal Padding",
+      "min": 16,
+      "max": 60,
+      "step": 4,
+      "unit": "px",
+      "default": 36
+    },
+    {
+      "type": "range",
+      "id": "button_border_radius",
+      "label": "Button Border Radius",
+      "min": 0,
+      "max": 50,
+      "step": 2,
+      "unit": "px",
+      "default": 2
+    },
+    {
+      "type": "header",
+      "content": "Background & Styling"
+    },
+    {
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "Background Image"
+    },
+    {
+      "type": "select",
+      "id": "background_position",
+      "label": "Background Position",
+      "options": [
+        {
+          "value": "center center",
+          "label": "Center Center"
+        },
+        {
+          "value": "top left",
+          "label": "Top Left"
+        },
+        {
+          "value": "top center",
+          "label": "Top Center"
+        },
+        {
+          "value": "top right",
+          "label": "Top Right"
+        },
+        {
+          "value": "center left",
+          "label": "Center Left"
+        },
+        {
+          "value": "center right",
+          "label": "Center Right"
+        },
+        {
+          "value": "bottom left",
+          "label": "Bottom Left"
+        },
+        {
+          "value": "bottom center",
+          "label": "Bottom Center"
+        },
+        {
+          "value": "bottom right",
+          "label": "Bottom Right"
+        },
+        {
+          "value": "custom",
+          "label": "Custom Position"
+        }
+      ],
+      "default": "center center"
+    },
+    {
+      "type": "range",
+      "id": "background_position_x",
+      "label": "Custom X Position",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 50,
+      "info": "0% = Left edge, 50% = Center, 100% = Right edge",
+      "visible_if": "{{ section.settings.background_position == 'custom' }}"
+    },
+    {
+      "type": "range",
+      "id": "background_position_y",
+      "label": "Custom Y Position",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 50,
+      "info": "0% = Top edge, 50% = Center, 100% = Bottom edge",
+      "visible_if": "{{ section.settings.background_position == 'custom' }}"
+    },
+    {
+      "type": "select",
+      "id": "background_size",
+      "label": "Background Size",
+      "options": [
+        {
+          "value": "cover",
+          "label": "Cover"
+        },
+        {
+          "value": "contain",
+          "label": "Contain"
+        },
+        {
+          "value": "auto",
+          "label": "Auto"
+        },
+        {
+          "value": "100% 100%",
+          "label": "Stretch"
+        }
+      ],
+      "default": "cover"
+    },
+    {
+      "type": "select",
+      "id": "background_repeat",
+      "label": "Background Repeat",
+      "options": [
+        {
+          "value": "no-repeat",
+          "label": "No Repeat"
+        },
+        {
+          "value": "repeat",
+          "label": "Repeat"
+        },
+        {
+          "value": "repeat-x",
+          "label": "Repeat Horizontally"
+        },
+        {
+          "value": "repeat-y",
+          "label": "Repeat Vertically"
+        }
+      ],
+      "default": "no-repeat"
+    },
+    {
+      "type": "header",
+      "content": "Image Overlay Settings",
+      "visible_if": "{{ section.settings.background_image != blank }}"
+    },
+    {
+      "type": "checkbox",
+      "id": "overlay_enabled",
+      "label": "Enable Overlay",
+      "default": true,
+      "visible_if": "{{ section.settings.background_image != blank }}"
+    },
+    {
+      "type": "color",
+      "id": "overlay_color",
+      "label": "Overlay Color",
+      "default": "#000000",
+      "visible_if": "{{ section.settings.background_image != blank }}"
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "label": "Overlay Opacity",
+      "min": 0,
+      "max": 80,
+      "step": 5,
+      "unit": "%",
+      "default": 40,
+      "visible_if": "{{ section.settings.background_image != blank }}"
+    },
+    {
+      "type": "header",
+      "content": "Layout Options"
+    },
+    {
+      "type": "select",
+      "id": "text_alignment",
+      "label": "Text Alignment",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "select",
+      "id": "section_height",
+      "label": "Section Height",
+      "options": [
+        {
+          "value": "small",
+          "label": "Small (400px)"
+        },
+        {
+          "value": "medium",
+          "label": "Medium (600px)"
+        },
+        {
+          "value": "large",
+          "label": "Large (800px)"
+        },
+        {
+          "value": "full",
+          "label": "Full Screen"
+        },
+        {
+          "value": "custom",
+          "label": "Custom"
+        }
+      ],
+      "default": "large"
+    },
+    {
+      "type": "range",
+      "id": "custom_height",
+      "label": "Custom Height",
+      "min": 200,
+      "max": 1200,
+      "step": 50,
+      "unit": "px",
+      "default": 600,
+      "visible_if": "{{ section.settings.section_height == 'custom' }}"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Hero Section",
+      "category": "Homepage"
+    }
+  ]
+}
+{% endschema %}

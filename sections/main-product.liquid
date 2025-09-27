@@ -1,0 +1,161 @@
+
+
+<div class="product-container">
+  <!-- Product Images Section -->
+  <div class="product-images">
+    <img src="{{ product.featured_image | img_url: '800x800' }}" 
+         alt="{{ product.title }}" 
+         class="product-main-image" 
+         id="mainImage">
+    
+    <div class="product-thumbnails">
+      <img src="https://via.placeholder.com/80x80/007cba/ffffff?text=1" 
+           alt="Product view 1" 
+           class="product-thumbnail active"
+           onclick="changeMainImage(this.src)">
+      <img src="https://via.placeholder.com/80x80/28a745/ffffff?text=2" 
+           alt="Product view 2" 
+           class="product-thumbnail"
+           onclick="changeMainImage(this.src)">
+      <img src="https://via.placeholder.com/80x80/dc3545/ffffff?text=3" 
+           alt="Product view 3" 
+           class="product-thumbnail"
+           onclick="changeMainImage(this.src)">
+      <img src="https://via.placeholder.com/80x80/ffc107/ffffff?text=4" 
+           alt="Product view 4" 
+           class="product-thumbnail"
+           onclick="changeMainImage(this.src)">
+    </div>
+  </div>
+
+  <!-- Product Details Section -->
+  <div class="product-details">
+    <h1 class="product-title">{{ product.title }}</h1>
+    
+    <div class="product-price">
+      {{ product.price | money }}
+      <span class="compare-price">{{ product.compare_at_price | money }}</span>
+    </div>
+
+    <div class="product-description">
+        {{ product.description }}
+    </div>
+
+    <!-- Product Variants -->
+    <div class="product-variants">
+      <div class="variant-group">
+        <label class="variant-label">Color</label>
+        <div class="variant-options">
+          <div class="variant-option selected" data-variant="black">Midnight Black</div>
+          <div class="variant-option" data-variant="white">Pearl White</div>
+          <div class="variant-option" data-variant="blue">Ocean Blue</div>
+        </div>
+      </div>
+
+      <div class="variant-group">
+        <label class="variant-label">Size</label>
+        <div class="variant-options">
+          <div class="variant-option" data-variant="standard">Standard</div>
+          <div class="variant-option selected" data-variant="large">Large</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quantity Selector -->
+    <div class="quantity-selector">
+      <label class="quantity-label">Quantity</label>
+      <div class="quantity-controls">
+        <button class="quantity-btn" onclick="decreaseQuantity()">−</button>
+        <input type="number" id="quantity" class="quantity-input" value="1" min="1" max="10">
+        <button class="quantity-btn" onclick="increaseQuantity()">+</button>
+      </div>
+    </div>
+
+
+    {% form 'product',product %}
+      <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}">
+        <button class="add-to-cart-btn" type="submit">
+        Add to Cart
+        </button>
+    {% endform %}    
+
+    <!-- Product Features -->
+    <div class="product-features">
+      <ul class="features-list">
+        <li>Active noise cancellation technology</li>
+        <li>30-hour battery life with quick charge</li>
+        <li>Premium comfort padding</li>
+        <li>Bluetooth 5.0 connectivity</li>
+        <li>Built-in microphone for calls</li>
+        <li>Foldable design for easy storage</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Image gallery functionality
+  function changeMainImage(src) {
+    document.getElementById('mainImage').src = src.replace('80x80', '800x800');
+    
+    // Update active thumbnail
+    document.querySelectorAll('.product-thumbnail').forEach(thumb => {
+      thumb.classList.remove('active');
+    });
+    event.target.classList.add('active');
+  }
+
+  // Quantity controls
+  function decreaseQuantity() {
+    const quantityInput = document.getElementById('quantity');
+    const currentValue = parseInt(quantityInput.value);
+    if (currentValue > 1) {
+      quantityInput.value = currentValue - 1;
+    }
+  }
+
+  function increaseQuantity() {
+    const quantityInput = document.getElementById('quantity');
+    const currentValue = parseInt(quantityInput.value);
+    const maxValue = parseInt(quantityInput.getAttribute('max')) || 10;
+    if (currentValue < maxValue) {
+      quantityInput.value = currentValue + 1;
+    }
+  }
+
+  // Variant selection
+  document.querySelectorAll('.variant-option').forEach(option => {
+    option.addEventListener('click', function() {
+      const parent = this.parentElement;
+      parent.querySelectorAll('.variant-option').forEach(opt => opt.classList.remove('selected'));
+      this.classList.add('selected');
+      
+      // Here you would typically update the variant ID and pricing
+      // For a full implementation, you'd need to handle Shopify variant logic
+    });
+  });
+
+  // Quantity input validation
+  document.getElementById('quantity').addEventListener('change', function() {
+    const value = parseInt(this.value);
+    const min = parseInt(this.getAttribute('min')) || 1;
+    const max = parseInt(this.getAttribute('max')) || 10;
+    
+    if (value < min) this.value = min;
+    if (value > max) this.value = max;
+  });
+</script>
+
+
+{% schema %}
+{
+  "name": "Main Product",
+  "tag": "section",
+  "settings": [],
+  "presets": [
+    {
+      "name": "Main Product",
+    }
+  ]
+}
+{% endschema %}

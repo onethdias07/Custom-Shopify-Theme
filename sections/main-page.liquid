@@ -1,0 +1,53 @@
+<div class="page-container">
+  <div class="page-header">
+    <h1 class="page-title">{{ page.title }}</h1>
+    {% if page.created_at or page.updated_at %}
+      <div class="page-meta">
+        {% if page.created_at %}
+          <span class="page-meta-item">Published {{ page.created_at | date: "%B %d, %Y" }}</span>
+        {% endif %}
+        {% if page.updated_at and page.updated_at != page.created_at %}
+          <span class="page-meta-item">Updated {{ page.updated_at | date: "%B %d, %Y" }}</span>
+        {% endif %}
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="page-content">
+    {{ page.content }}
+  </div>
+
+  {% comment %}
+  Optional: Add navigation between pages
+  You can customize this section based on your needs
+  {% endcomment %}
+  {% if blog.previous_article or blog.next_article %}
+    <nav class="page-nav">
+      {% if blog.previous_article %}
+        <a href="{{ blog.previous_article.url }}" class="page-nav-link page-nav-prev">
+          {{ blog.previous_article.title | truncate: 30 }}
+        </a>
+      {% else %}
+        <span></span>
+      {% endif %}
+
+      {% if blog.next_article %}
+        <a href="{{ blog.next_article.url }}" class="page-nav-link page-nav-next">
+          {{ blog.next_article.title | truncate: 30 }}
+        </a>
+      {% endif %}
+    </nav>
+  {% endif %}
+</div>
+
+{% schema %}
+{
+  "name": "Main Page",
+  "settings": [],
+  "presets": [
+    {
+      "name": "Main Page",
+    }
+  ]
+}
+{% endschema %}
