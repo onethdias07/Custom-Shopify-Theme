@@ -1,0 +1,470 @@
+{% comment %}
+  Text Block - Customizable text block with full styling control
+{% endcomment %}
+
+{%- liquid
+  assign font_family = block.settings.font_family.family | default: 'inherit'
+  assign font_size = block.settings.font_size | default: 16
+  assign font_color = block.settings.font_color | default: '#000000'
+  assign line_height = block.settings.line_height | default: 1.5
+  assign letter_spacing = block.settings.letter_spacing | default: 0
+  assign text_transform = block.settings.text_transform | default: 'none'
+  assign font_style = block.settings.font_style | default: 'normal'
+  assign font_weight = block.settings.font_weight | default: 'normal'
+  
+  assign padding_top = block.settings.padding_top | default: 0
+  assign padding_bottom = block.settings.padding_bottom | default: 0
+  assign padding_left = block.settings.padding_left | default: 0
+  assign padding_right = block.settings.padding_right | default: 0
+  
+  assign margin_top = block.settings.margin_top | default: 0
+  assign margin_bottom = block.settings.margin_bottom | default: 0
+  assign margin_left = block.settings.margin_left | default: 0
+  assign margin_right = block.settings.margin_right | default: 0
+  
+  assign text_align = block.settings.text_align | default: 'left'
+  assign max_width = block.settings.max_width
+  assign custom_width = block.settings.custom_width
+  
+  assign element_tag = block.settings.element_tag | default: 'p'
+-%}
+
+<style>
+  .text-block-{{ block.id }} {
+    font-family: {{ font_family }};
+    font-size: {{ font_size }}px;
+    color: {{ font_color }};
+    line-height: {{ line_height }};
+    letter-spacing: {{ letter_spacing }}px;
+    text-transform: {{ text_transform }};
+    font-style: {{ font_style }};
+    font-weight: {{ font_weight }};
+    
+    padding: {{ padding_top }}px {{ padding_right }}px {{ padding_bottom }}px {{ padding_left }}px;
+    margin: {{ margin_top }}px {{ margin_right }}px {{ margin_bottom }}px {{ margin_left }}px;
+    
+    text-align: {{ text_align }};
+    
+    {% if max_width != blank %}
+      max-width: {{ max_width }}px;
+    {% endif %}
+    
+    {% if custom_width != blank %}
+      width: {{ custom_width }}%;
+    {% endif %}
+    
+    {% if text_align == 'center' %}
+      {% if max_width != blank or custom_width != blank %}
+        margin-left: auto;
+        margin-right: auto;
+      {% endif %}
+    {% endif %}
+  }
+  
+  .text-block-container-{{ block.id }} {
+    {% if block.settings.container_background_color != blank %}
+      background-color: {{ block.settings.container_background_color }};
+    {% endif %}
+    
+    {% if block.settings.container_border_radius != blank %}
+      border-radius: {{ block.settings.container_border_radius }}px;
+    {% endif %}
+    
+    {% if block.settings.container_padding_top != blank or block.settings.container_padding_bottom != blank or block.settings.container_padding_left != blank or block.settings.container_padding_right != blank %}
+      padding: {{ block.settings.container_padding_top | default: 0 }}px {{ block.settings.container_padding_right | default: 0 }}px {{ block.settings.container_padding_bottom | default: 0 }}px {{ block.settings.container_padding_left | default: 0 }}px;
+    {% endif %}
+  }
+</style>
+
+<div class="text-block-container-{{ block.id }}">
+  <{{ element_tag }} class="text-block-{{ block.id }}" {{ block.shopify_attributes }}>
+    {{ block.settings.text | default: 'Add your text here...' }}
+  </{{ element_tag }}>
+</div>
+
+{% schema %}
+{
+  "name": "Text Block",
+  "settings": [
+    {
+      "type": "textarea",
+      "id": "text",
+      "label": "Text Content",
+      "default": "Add your custom text here..."
+    },
+    {
+      "type": "select",
+      "id": "element_tag",
+      "label": "HTML Element",
+      "options": [
+        {
+          "value": "p",
+          "label": "Paragraph (p)"
+        },
+        {
+          "value": "h1",
+          "label": "Heading 1 (h1)"
+        },
+        {
+          "value": "h2",
+          "label": "Heading 2 (h2)"
+        },
+        {
+          "value": "h3",
+          "label": "Heading 3 (h3)"
+        },
+        {
+          "value": "h4",
+          "label": "Heading 4 (h4)"
+        },
+        {
+          "value": "h5",
+          "label": "Heading 5 (h5)"
+        },
+        {
+          "value": "h6",
+          "label": "Heading 6 (h6)"
+        },
+        {
+          "value": "span",
+          "label": "Span"
+        },
+        {
+          "value": "div",
+          "label": "Div"
+        }
+      ],
+      "default": "p"
+    },
+    {
+      "type": "header",
+      "content": "Typography Settings"
+    },
+    {
+      "type": "font_picker",
+      "id": "font_family",
+      "label": "Font Family",
+      "default": "helvetica_n4"
+    },
+    {
+      "type": "range",
+      "id": "font_size",
+      "min": 8,
+      "max": 72,
+      "step": 1,
+      "unit": "px",
+      "label": "Font Size",
+      "default": 16
+    },
+    {
+      "type": "color",
+      "id": "font_color",
+      "label": "Text Color",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "line_height",
+      "min": 0.8,
+      "max": 3.0,
+      "step": 0.1,
+      "label": "Line Height",
+      "default": 1.5
+    },
+    {
+      "type": "range",
+      "id": "letter_spacing",
+      "min": -5,
+      "max": 20,
+      "step": 0.5,
+      "unit": "px",
+      "label": "Letter Spacing",
+      "default": 0
+    },
+    {
+      "type": "select",
+      "id": "text_transform",
+      "label": "Text Transform",
+      "options": [
+        {
+          "value": "none",
+          "label": "None"
+        },
+        {
+          "value": "uppercase",
+          "label": "UPPERCASE"
+        },
+        {
+          "value": "lowercase",
+          "label": "lowercase"
+        },
+        {
+          "value": "capitalize",
+          "label": "Capitalize Each Word"
+        }
+      ],
+      "default": "none"
+    },
+    {
+      "type": "select",
+      "id": "font_style",
+      "label": "Font Style",
+      "options": [
+        {
+          "value": "normal",
+          "label": "Normal"
+        },
+        {
+          "value": "italic",
+          "label": "Italic"
+        },
+        {
+          "value": "oblique",
+          "label": "Oblique"
+        }
+      ],
+      "default": "normal"
+    },
+    {
+      "type": "select",
+      "id": "font_weight",
+      "label": "Font Weight",
+      "options": [
+        {
+          "value": "100",
+          "label": "Thin (100)"
+        },
+        {
+          "value": "200",
+          "label": "Extra Light (200)"
+        },
+        {
+          "value": "300",
+          "label": "Light (300)"
+        },
+        {
+          "value": "normal",
+          "label": "Normal (400)"
+        },
+        {
+          "value": "500",
+          "label": "Medium (500)"
+        },
+        {
+          "value": "600",
+          "label": "Semi Bold (600)"
+        },
+        {
+          "value": "bold",
+          "label": "Bold (700)"
+        },
+        {
+          "value": "800",
+          "label": "Extra Bold (800)"
+        },
+        {
+          "value": "900",
+          "label": "Black (900)"
+        }
+      ],
+      "default": "normal"
+    },
+    {
+      "type": "header",
+      "content": "Spacing & Layout"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Padding Top",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Padding Bottom",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_left",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Padding Left",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_right",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Padding Right",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "margin_top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Margin Top",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "margin_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Margin Bottom",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "margin_left",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Margin Left",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "margin_right",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Margin Right",
+      "default": 0
+    },
+    {
+      "type": "select",
+      "id": "text_align",
+      "label": "Text Alignment",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        },
+        {
+          "value": "justify",
+          "label": "Justify"
+        }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "range",
+      "id": "max_width",
+      "min": 200,
+      "max": 1200,
+      "step": 10,
+      "unit": "px",
+      "label": "Max Width (optional)",
+      "info": "Leave blank for no max width constraint",
+      "default": 600
+    },
+    {
+      "type": "range",
+      "id": "custom_width",
+      "min": 10,
+      "max": 100,
+      "step": 1,
+      "unit": "%",
+      "label": "Custom Width (optional)",
+      "info": "Leave blank to use auto width",
+      "default": 100
+    },
+    {
+      "type": "header",
+      "content": "Container Settings"
+    },
+    {
+      "type": "color",
+      "id": "container_background_color",
+      "label": "Container Background Color",
+      "info": "Optional background color for the text container"
+    },
+    {
+      "type": "range",
+      "id": "container_border_radius",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "label": "Container Border Radius",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "container_padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Container Padding Top",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "container_padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Container Padding Bottom",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "container_padding_left",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Container Padding Left",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "container_padding_right",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Container Padding Right",
+      "default": 0
+    }
+  ],
+  "presets": [
+    {
+      "name": "Text Block",
+      "category": "Content"
+    }
+  ]
+}
+{% endschema %}

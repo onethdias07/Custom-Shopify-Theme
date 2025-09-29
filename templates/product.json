@@ -1,8 +1,66 @@
 {
-    "sections" : {
-        "main" : {
-            "type": "main-product"
+  "sections": {
+    "main": {
+      "type": "main-product",
+      "blocks": {
+        "title_8NCFtf": {
+          "type": "title",
+          "settings": {}
+        },
+        "description_hCpyya": {
+          "type": "description",
+          "settings": {
+            "show_description": true
+          }
+        },
+        "price_hJkRW8": {
+          "type": "price",
+          "settings": {}
+        },
+        "variant_picker_mbjiig": {
+          "type": "variant_picker",
+          "settings": {}
+        },
+        "quantity_selector_dwdUxt": {
+          "type": "quantity_selector",
+          "settings": {
+            "label": "Quantity",
+            "default_quantity": 1,
+            "min_quantity": 1,
+            "max_quantity": 10
+          }
+        },
+        "buy_buttons_g7fH7f": {
+          "type": "buy_buttons",
+          "settings": {
+            "add_to_cart_text": "Add to Cart",
+            "show_dynamic_checkout": true
+          }
+        },
+        "features_list_Kwa8H8": {
+          "type": "features_list",
+          "settings": {
+            "heading": "Features",
+            "features": "High-quality materials\nDurable construction\nModern design\nEasy to use"
+          }
         }
-    },
-    "order": ["main"]
+      },
+      "block_order": [
+        "title_8NCFtf",
+        "description_hCpyya",
+        "price_hJkRW8",
+        "variant_picker_mbjiig",
+        "quantity_selector_dwdUxt",
+        "buy_buttons_g7fH7f",
+        "features_list_Kwa8H8"
+      ],
+      "settings": {
+        "media_limit": 8,
+        "show_thumbnails": true
+      }
+    }
+  },
+  "order": [
+    "main"
+  ]
 }
