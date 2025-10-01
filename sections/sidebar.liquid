@@ -659,9 +659,9 @@
                 <path d="M7 4V2C7 1.45 7.45 1 8 1H16C16.55 1 17 1.45 17 2V4H20C20.55 4 21 4.45 21 5S20.55 6 20 6H19V19C19 20.1 18.1 21 17 21H7C5.9 21 5 20.1 5 19V6H4C3.45 6 3 5.55 3 5S3.45 4 4 4H7ZM9 3V4H15V3H9ZM7 6V19H17V6H7Z"/>
               </svg>
             </div>
-            <h3>Your cart is empty</h3>
-            <p>Add some products to get started</p>
-            <button onclick="closeSidebar()" class="continue-shopping-btn">Continue Shopping</button>
+            <h3>{{ 'cart.general.empty' | t | default: 'Your cart is empty' }}</h3>
+            <p>{{ 'cart.general.empty_text' | t | default: 'Add some products to get started' }}</p>
+            <button onclick="closeSidebar()" class="continue-shopping-btn">{{ 'cart.general.continue_shopping' | t | default: 'Continue Shopping' }}</button>
           </div>
         {% endif %}
       </div>
@@ -710,8 +710,8 @@
         <div class="cart-summary">
           {% if section.settings.show_cart_notes %}
             <div class="cart-notes">
-              <label for="cart-note">Order Notes:</label>
-              <textarea id="cart-note" name="note" placeholder="Add special instructions...">{{ cart.note }}</textarea>
+              <label for="cart-note">{{ 'cart.general.note' | t | default: 'Order Notes:' }}</label>
+              <textarea id="cart-note" name="note" placeholder="{{ 'cart.general.note_placeholder' | t | default: 'Add special instructions...' }}">{{ cart.note }}</textarea>
             </div>
           {% endif %}
           
@@ -733,7 +733,7 @@
             <button onclick="window.location.href='{{ routes.cart_url }}'" class="view-cart-btn">
               {{ section.settings.view_cart_text | default: 'View Cart' }}
             </button>
-            <button onclick="window.location.href='/checkout'" class="checkout-btn">
+            <button onclick="window.location.href='{{ routes.root_url }}checkout'" class="checkout-btn">
               {{ section.settings.checkout_text | default: 'Checkout' }}
             </button>
           </div>
@@ -750,6 +750,88 @@
 </sidebar-drawer>
 
 <script>
+// Initialize Shopify theme configuration
+window.theme = window.theme || {};
+window.theme.moneyFormat = '{{ shop.money_format }}';
+window.theme.currency = {
+  code: '{{ cart.currency.iso_code }}',
+  symbol: '{{ cart.currency.symbol }}'
+};
+window.theme.routes = {
+  root: '{{ routes.root_url }}',
+  cart: '{{ routes.cart_url }}',
+  cartAdd: '{{ routes.root_url }}cart/add.js',
+  cartChange: '{{ routes.root_url }}cart/change.js',
+  cartGet: '{{ routes.root_url }}cart.js',
+  checkout: '{{ routes.root_url }}checkout'
+};
+
+// Shopify formatMoney function (fallback if not available)
+if (typeof Shopify === 'undefined') {
+  window.Shopify = {};
+}
+
+if (!Shopify.formatMoney) {
+  Shopify.formatMoney = function(cents, format) {
+    if (typeof cents === 'string') {
+      cents = cents.replace('.', '');
+    }
+    
+    let value = '';
+    const placeholderRegex = /\{\{\s*(\w+)\s*\}\}/;
+    const formatString = format || window.theme.moneyFormat;
+    
+    function formatWithDelimiters(number, precision, thousands, decimal) {
+      precision = precision || 2;
+      thousands = thousands || ',';
+      decimal = decimal || '.';
+      
+      if (isNaN(number) || number === null) {
+        return '0';
+      }
+      
+      number = (number / 100.0).toFixed(precision);
+      
+      const parts = number.split('.');
+      const dollarsAmount = parts[0].replace(/(\d)(?=(\d\d\d)+(?!\d))/g, '$1' + thousands);
+      const centsAmount = parts[1] ? (decimal + parts[1]) : '';
+      
+      return dollarsAmount + centsAmount;
+    }
+    
+    const match = formatString.match(placeholderRegex);
+    if (!match) {
+      return formatString;
+    }
+    
+    switch (match[1]) {
+      case 'amount':
+        value = formatWithDelimiters(cents, 2);
+        break;
+      case 'amount_no_decimals':
+        value = formatWithDelimiters(cents, 0);
+        break;
+      case 'amount_with_comma_separator':
+        value = formatWithDelimiters(cents, 2, '.', ',');
+        break;
+      case 'amount_no_decimals_with_comma_separator':
+        value = formatWithDelimiters(cents, 0, '.', ',');
+        break;
+      case 'amount_with_space_separator':
+        value = formatWithDelimiters(cents, 2, ' ');
+        break;
+      case 'amount_no_decimals_with_space_separator':
+        value = formatWithDelimiters(cents, 0, ' ');
+        break;
+      default:
+        value = formatWithDelimiters(cents, 2);
+        break;
+    }
+    
+    return formatString.replace(placeholderRegex, value);
+  };
+}
+
 class SidebarDrawer extends HTMLElement {
   constructor() {
     super();
@@ -919,7 +1001,7 @@ window.updateCartQuantity = function(variantId, quantity) {
     cartItem.style.pointerEvents = 'none';
   }
   
-  fetch('/cart/change.js', {
+  fetch(window.theme.routes.cartChange, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -962,7 +1044,7 @@ window.removeCartItem = function(variantId) {
     cartItem.style.pointerEvents = 'none';
   }
   
-  fetch('/cart/change.js', {
+  fetch(window.theme.routes.cartChange, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -1005,7 +1087,7 @@ window.refreshCartDrawerContent = function() {
     sidebar.showLoader();
   }
   
-  return fetch('/cart.js')
+  return fetch(window.theme.routes.cartGet)
     .then(response => {
       if (!response.ok) {
         throw new Error('Failed to fetch cart data');
@@ -1056,7 +1138,7 @@ window.updateCartDisplay = function(cart) {
     // Build cart items HTML
     let cartItemsHTML = '';
     cart.items.forEach(item => {
-      const imageUrl = item.image ? `${item.image.replace('.jpg', '_80x80.jpg').replace('.png', '_80x80.png')}` : '';
+      const imageUrl = item.image ? item.image + '?width=80' : '';
       const variantTitle = item.variant_title && item.variant_title !== 'Default Title' ? item.variant_title : '';
       
       cartItemsHTML += `
@@ -1119,8 +1201,8 @@ window.updateCartDisplay = function(cart) {
           </div>
           
           <div class="cart-actions">
-            <button onclick="window.location.href='/cart'" class="view-cart-btn">View Cart</button>
-            <button onclick="window.location.href='/checkout'" class="checkout-btn">Checkout</button>
+            <button onclick="window.location.href='{{ routes.cart_url }}'" class="view-cart-btn">View Cart</button>
+            <button onclick="window.location.href='{{ routes.root_url }}checkout'" class="checkout-btn">Checkout</button>
           </div>
         </div>
       `;
@@ -1135,8 +1217,8 @@ window.updateCartDisplay = function(cart) {
             <path d="M7 4V2C7 1.45 7.45 1 8 1H16C16.55 1 17 1.45 17 2V4H20C20.55 4 21 4.45 21 5S20.55 6 20 6H19V19C19 20.1 18.1 21 17 21H7C5.9 21 5 20.1 5 19V6H4C3.45 6 3 5.55 3 5S3.45 4 4 4H7ZM9 3V4H15V3H9ZM7 6V19H17V6H7Z"/>
           </svg>
         </div>
-        <h3>Your cart is empty</h3>
-        <p>Add some products to get started</p>
+        <h3>{{ 'cart.general.empty' | t | default: 'Your cart is empty' }}</h3>
+        <p>{{ 'cart.general.empty_text' | t | default: 'Add some products to get started' }}</p>
         <button onclick="closeSidebar()" class="continue-shopping-btn">Continue Shopping</button>
       </div>
     `;
@@ -1147,10 +1229,9 @@ window.updateCartDisplay = function(cart) {
   }
 };
 
-// Helper function to format money
+// Helper function to format money using Shopify's format
 window.formatMoney = function(cents) {
-  const dollars = (cents / 100).toFixed(2);
-  return `$${dollars}`;
+  return Shopify.formatMoney(cents, window.theme.moneyFormat);
 };
 
 // Auto-open cart drawer when item is added
@@ -1168,7 +1249,7 @@ document.addEventListener('DOMContentLoaded', function() {
       
       const formData = new FormData(form);
       
-      fetch('/cart/add.js', {
+      fetch(window.theme.routes.cartAdd, {
         method: 'POST',
         body: formData
       })
@@ -1178,7 +1259,7 @@ document.addEventListener('DOMContentLoaded', function() {
           console.log('Product added to cart:', data);
           
           // Get updated cart data
-          return fetch('/cart.js');
+          return fetch(window.theme.routes.cartGet);
         } else {
           throw new Error(data.description || 'Error adding to cart');
         }
@@ -1220,6 +1301,30 @@ document.addEventListener('DOMContentLoaded', function() {
         hidePageLoader();
         openSidebar();
       });
+  });
+
+  // Cart note functionality
+  document.addEventListener('change', function(e) {
+    if (e.target && e.target.id === 'cart-note') {
+      const note = e.target.value;
+      
+      fetch(window.theme.routes.cartGet.replace('.js', '/update.js'), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          note: note
+        })
+      })
+      .then(response => response.json())
+      .then(cart => {
+        console.log('Cart note updated:', cart.note);
+      })
+      .catch(error => {
+        console.error('Error updating cart note:', error);
+      });
+    }
   });
 });
 </script>
