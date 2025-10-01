@@ -16,10 +16,19 @@
         "logo_max_width": 120,
         "menu": "main-menu"
       }
+    },
+    "sidebar": {
+      "type": "sidebar",
+      "settings": {
+        "sidebar_title": "Shopping Cart",
+        "show_footer": true,
+        "footer_content": "<p>Free shipping on orders over $50!</p>"
+      }
     }
   },
   "order": [
     "announcement-bar",
-    "header"
+    "header",
+    "sidebar"
   ]
 }
