@@ -24,5 +24,579 @@
            }
 
         ]
+    },
+    {
+        "name": "Favicon",
+        "settings": [
+            {
+                "type": "image_picker",
+                "id": "favicon",
+                "label": "Favicon",
+                "info": "Upload a square image, preferably 32x32px or 64x64px"
+            }
+        ]
+    },
+    {
+        "name": "Colors",
+        "settings": [
+            {
+                "type": "header",
+                "content": "Color Scheme"
+            },
+            {
+                "type": "color",
+                "id": "color_primary",
+                "label": "Primary Color",
+                "default": "#2c2c2c",
+                "info": "Used for buttons, links, and accents"
+            },
+            {
+                "type": "color",
+                "id": "color_secondary",
+                "label": "Secondary Color", 
+                "default": "#666666",
+                "info": "Used for text and subtle elements"
+            },
+            {
+                "type": "color",
+                "id": "color_accent",
+                "label": "Accent Color",
+                "default": "#007cba",
+                "info": "Used for highlights and call-to-action elements"
+            },
+            {
+                "type": "color",
+                "id": "color_success",
+                "label": "Success Color",
+                "default": "#27ae60",
+                "info": "Used for success messages and positive indicators"
+            },
+            {
+                "type": "color",
+                "id": "color_error",
+                "label": "Error Color",
+                "default": "#e74c3c",
+                "info": "Used for error messages and warnings"
+            },
+            {
+                "type": "header",
+                "content": "Background Colors"
+            },
+            {
+                "type": "color",
+                "id": "color_background",
+                "label": "Page Background",
+                "default": "#fafafa"
+            },
+            {
+                "type": "color",
+                "id": "color_background_secondary",
+                "label": "Section Background",
+                "default": "#ffffff"
+            }
+        ]
+    },
+    {
+        "name": "Layout & Spacing",
+        "settings": [
+            {
+                "type": "header",
+                "content": "Container Settings"
+            },
+            {
+                "type": "range",
+                "id": "container_max_width",
+                "label": "Maximum container width",
+                "min": 1000,
+                "max": 1600,
+                "step": 50,
+                "default": 1200,
+                "unit": "px"
+            },
+            {
+                "type": "range",
+                "id": "section_vertical_spacing",
+                "label": "Section vertical spacing",
+                "min": 40,
+                "max": 120,
+                "step": 10,
+                "default": 60,
+                "unit": "px"
+            },
+            {
+                "type": "header",
+                "content": "Button Settings"
+            },
+            {
+                "type": "range",
+                "id": "button_border_radius",
+                "label": "Button border radius",
+                "min": 0,
+                "max": 20,
+                "step": 1,
+                "default": 2,
+                "unit": "px"
+            },
+            {
+                "type": "select",
+                "id": "button_style",
+                "label": "Button style",
+                "options": [
+                    {
+                        "value": "solid",
+                        "label": "Solid"
+                    },
+                    {
+                        "value": "outline",
+                        "label": "Outline"
+                    }
+                ],
+                "default": "solid"
+            }
+        ]
+    },
+    {
+        "name": "Social Media",
+        "settings": [
+            {
+                "type": "header",
+                "content": "Social Sharing"
+            },
+            {
+                "type": "image_picker",
+                "id": "social_sharing_image",
+                "label": "Default social sharing image",
+                "info": "Upload an image (1200x630px recommended) for social media sharing when no specific image is available"
+            },
+            {
+                "type": "header",
+                "content": "Social Media Links"
+            },
+            {
+                "type": "url",
+                "id": "social_facebook_url",
+                "label": "Facebook URL"
+            },
+            {
+                "type": "url",
+                "id": "social_instagram_url",
+                "label": "Instagram URL"
+            },
+            {
+                "type": "url",
+                "id": "social_twitter_url",
+                "label": "Twitter URL"
+            },
+            {
+                "type": "url",
+                "id": "social_pinterest_url",
+                "label": "Pinterest URL"
+            },
+            {
+                "type": "url",
+                "id": "social_youtube_url",
+                "label": "YouTube URL"
+            },
+            {
+                "type": "url",
+                "id": "social_tiktok_url",
+                "label": "TikTok URL"
+            },
+            {
+                "type": "url",
+                "id": "social_linkedin_url",
+                "label": "LinkedIn URL"
+            }
+        ]
+    },
+    {
+        "name": "Cart & Checkout",
+        "settings": [
+            {
+                "type": "header",
+                "content": "Cart Settings"
+            },
+            {
+                "type": "checkbox",
+                "id": "cart_ajax_enable",
+                "label": "Enable Ajax cart",
+                "default": true,
+                "info": "Allow customers to add products without page refresh"
+            },
+            {
+                "type": "checkbox",
+                "id": "cart_show_vendor",
+                "label": "Show vendor names in cart",
+                "default": false
+            },
+            {
+                "type": "checkbox",
+                "id": "cart_notes_enable",
+                "label": "Enable cart notes",
+                "default": true,
+                "info": "Allow customers to add special instructions"
+            },
+            {
+                "type": "header",
+                "content": "Product Settings"
+            },
+            {
+                "type": "checkbox",
+                "id": "product_show_vendor",
+                "label": "Show vendor names on products",
+                "default": false
+            },
+            {
+                "type": "checkbox",
+                "id": "product_show_sku",
+                "label": "Show product SKUs",
+                "default": false
+            },
+            {
+                "type": "select",
+                "id": "product_image_zoom",
+                "label": "Product image zoom",
+                "options": [
+                    {
+                        "value": "none",
+                        "label": "No zoom"
+                    },
+                    {
+                        "value": "hover",
+                        "label": "Zoom on hover"
+                    },
+                    {
+                        "value": "click",
+                        "label": "Zoom on click"
+                    }
+                ],
+                "default": "hover"
+            }
+        ]
+    },
+    {
+        "name": "Performance",
+        "settings": [
+            {
+                "type": "header",
+                "content": "Loading Options"
+            },
+            {
+                "type": "checkbox",
+                "id": "lazy_loading_enable",
+                "label": "Enable lazy loading for images",
+                "default": true,
+                "info": "Improves page speed by loading images only when needed"
+            },
+            {
+                "type": "checkbox",
+                "id": "preload_fonts",
+                "label": "Preload fonts",
+                "default": true,
+                "info": "Preload custom fonts to reduce layout shift"
+            },
+            {
+                "type": "header",
+                "content": "Animation Settings"
+            },
+            {
+                "type": "checkbox",
+                "id": "animations_enable",
+                "label": "Enable animations",
+                "default": true,
+                "info": "Disable for better performance on slower devices"
+            },
+            {
+                "type": "select",
+                "id": "animations_speed",
+                "label": "Animation speed",
+                "options": [
+                    {
+                        "value": "slow",
+                        "label": "Slow"
+                    },
+                    {
+                        "value": "normal",
+                        "label": "Normal"
+                    },
+                    {
+                        "value": "fast",
+                        "label": "Fast"
+                    }
+                ],
+                "default": "normal"
+            }
+        ]
+    },
+    {
+        "name": "Newsletter",
+        "settings": [
+            {
+                "type": "header",
+                "content": "Newsletter Signup"
+            },
+            {
+                "type": "checkbox",
+                "id": "newsletter_enable",
+                "label": "Enable newsletter signup",
+                "default": true
+            },
+            {
+                "type": "text",
+                "id": "newsletter_heading",
+                "label": "Newsletter heading",
+                "default": "Subscribe to our newsletter"
+            },
+            {
+                "type": "textarea",
+                "id": "newsletter_subheading",
+                "label": "Newsletter subheading",
+                "default": "Get updates on new products and exclusive offers"
+            },
+            {
+                "type": "text",
+                "id": "newsletter_button_text",
+                "label": "Button text",
+                "default": "Subscribe"
+            },
+            {
+                "type": "header",
+                "content": "Privacy & GDPR"
+            },
+            {
+                "type": "checkbox",
+                "id": "newsletter_show_privacy_notice",
+                "label": "Show privacy notice",
+                "default": true,
+                "info": "Required for GDPR compliance"
+            },
+            {
+                "type": "text",
+                "id": "newsletter_privacy_text",
+                "label": "Privacy notice text",
+                "default": "By subscribing, you agree to our Privacy Policy and consent to receive updates from our company."
+            }
+        ]
+    },
+    {
+        "name": "Search",
+        "settings": [
+            {
+                "type": "header",
+                "content": "Search Settings"
+            },
+            {
+                "type": "checkbox",
+                "id": "search_enable_predictive",
+                "label": "Enable predictive search",
+                "default": true,
+                "info": "Show search suggestions as customers type"
+            },
+            {
+                "type": "range",
+                "id": "search_products_limit",
+                "label": "Products to show in search suggestions",
+                "min": 4,
+                "max": 12,
+                "step": 2,
+                "default": 6
+            },
+            {
+                "type": "checkbox",
+                "id": "search_show_collections",
+                "label": "Show collections in search results",
+                "default": true
+            },
+            {
+                "type": "checkbox",
+                "id": "search_show_pages",
+                "label": "Show pages in search results", 
+                "default": false
+            }
+        ]
+    },
+    {
+        "name": "SEO & Meta Tags",
+        "settings": [
+            {
+                "type": "header",
+                "content": "Page Titles"
+            },
+            {
+                "type": "text",
+                "id": "seo_home_title",
+                "label": "Homepage Title",
+                "info": "Leave blank to use store name"
+            },
+            {
+                "type": "text",
+                "id": "seo_product_title",
+                "label": "Product Title Template",
+                "default": "[product] - [brand]",
+                "info": "Use [product] for product name, [brand] for vendor"
+            },
+            {
+                "type": "text",
+                "id": "seo_collection_title",
+                "label": "Collection Title Template", 
+                "default": "[collection]",
+                "info": "Use [collection] for collection name"
+            },
+            {
+                "type": "text",
+                "id": "seo_blog_title",
+                "label": "Blog Title Template",
+                "default": "[blog]",
+                "info": "Use [blog] for blog name"
+            },
+            {
+                "type": "text",
+                "id": "seo_article_title",
+                "label": "Article Title Template",
+                "default": "[article] - [blog]",
+                "info": "Use [article] for article name, [blog] for blog name"
+            },
+            {
+                "type": "text",
+                "id": "seo_page_title",
+                "label": "Page Title Template",
+                "default": "[page]",
+                "info": "Use [page] for page name"
+            },
+            {
+                "type": "header",
+                "content": "Meta Descriptions"
+            },
+            {
+                "type": "textarea",
+                "id": "seo_home_description",
+                "label": "Homepage Description",
+                "info": "Leave blank to use store description"
+            },
+            {
+                "type": "textarea",
+                "id": "seo_product_description",
+                "label": "Product Description Template",
+                "default": "Shop [product] by [brand]. High quality products with fast shipping.",
+                "info": "Use [product] for product name, [brand] for vendor"
+            },
+            {
+                "type": "textarea",
+                "id": "seo_collection_description",
+                "label": "Collection Description Template",
+                "default": "Shop our [collection] collection. Discover quality products with great prices.",
+                "info": "Use [collection] for collection name"
+            },
+            {
+                "type": "textarea",
+                "id": "seo_blog_description",
+                "label": "Blog Description Template",
+                "default": "Read [blog] articles and insights. Stay updated with the latest news.",
+                "info": "Use [blog] for blog name"
+            },
+            {
+                "type": "textarea",
+                "id": "seo_article_description",
+                "label": "Article Description Template",
+                "default": "Read [article] on [blog]. Expert insights and valuable information.",
+                "info": "Use [article] for article name, [blog] for blog name"
+            },
+            {
+                "type": "textarea",
+                "id": "seo_page_description",
+                "label": "Page Description Template",
+                "default": "[page] - Important information and details.",
+                "info": "Use [page] for page name"
+            },
+            {
+                "type": "header",
+                "content": "Global SEO Settings"
+            },
+            {
+                "type": "text",
+                "id": "seo_keywords",
+                "label": "Global Keywords",
+                "info": "Comma-separated keywords for your site"
+            },
+            {
+                "type": "text",
+                "id": "seo_author",
+                "label": "Author/Company Name",
+                "info": "Your company or author name"
+            },
+            {
+                "type": "select",
+                "id": "seo_robots",
+                "label": "Search Engine Indexing",
+                "options": [
+                    {
+                        "value": "index, follow",
+                        "label": "Index and follow links (Recommended)"
+                    },
+                    {
+                        "value": "index, nofollow", 
+                        "label": "Index but don't follow links"
+                    },
+                    {
+                        "value": "noindex, follow",
+                        "label": "Don't index but follow links"
+                    },
+                    {
+                        "value": "noindex, nofollow",
+                        "label": "Don't index and don't follow links"
+                    }
+                ],
+                "default": "index, follow"
+            },
+            {
+                "type": "header",
+                "content": "Site Verification"
+            },
+            {
+                "type": "text",
+                "id": "seo_verify_google",
+                "label": "Google Search Console Verification Code",
+                "info": "Get this from Google Search Console"
+            },
+            {
+                "type": "text",
+                "id": "seo_verify_bing",
+                "label": "Bing Webmaster Tools Verification Code",
+                "info": "Get this from Bing Webmaster Tools"
+            },
+            {
+                "type": "header",
+                "content": "Robots.txt Settings"
+            },
+            {
+                "type": "checkbox",
+                "id": "seo_block_ai_crawlers",
+                "label": "Block AI Content Crawlers",
+                "default": false,
+                "info": "Block GPTBot, ChatGPT, and other AI crawlers from accessing your content"
+            },
+            {
+                "type": "url",
+                "id": "seo_additional_sitemap",
+                "label": "Additional Sitemap URL",
+                "info": "Add an extra sitemap URL to robots.txt (optional)"
+            },
+            {
+                "type": "header",
+                "content": "Social Media"
+            },
+            {
+                "type": "text",
+                "id": "social_twitter_handle",
+                "label": "Twitter Handle",
+                "info": "Your Twitter username (without @)"
+            },
+            {
+                "type": "image_picker",
+                "id": "seo_default_og_image",
+                "label": "Default SEO Social Image",
+                "info": "1200x630px recommended. Used when pages don't have specific images."
+            }
+        ]
     }
 ]

@@ -1,0 +1,75 @@
+{%- comment -%}
+Custom robots.txt template
+Following Shopify's official documentation and best practices
+{%- endcomment -%}
+
+{%- for group in robots.default_groups -%}
+  {{- group.user_agent }}
+
+  {%- for rule in group.rules -%}
+    {{- rule }}
+  {%- endfor -%}
+
+  {%- comment -%} Add custom rules for specific user agents {%- endcomment -%}
+  {%- if group.user_agent.value == '*' -%}
+    {%- comment -%} Block search parameters that could create duplicate content {%- endcomment -%}
+    {{ 'Disallow: /*?q=*' }}
+    {{ 'Disallow: /*?sort_by=*' }}
+    {{ 'Disallow: /*?page=*' }}
+    {{ 'Disallow: /*?variant=*' }}
+    
+    {%- comment -%} Block development and testing paths {%- endcomment -%}
+    {{ 'Disallow: /search' }}
+    {{ 'Disallow: /cart' }}
+    {{ 'Disallow: /checkout' }}
+    {{ 'Disallow: /account/login' }}
+    {{ 'Disallow: /account/register' }}
+    
+    {%- comment -%} Allow important pages for SEO {%- endcomment -%}
+    {{ 'Allow: /products/' }}
+    {{ 'Allow: /collections/' }}
+    {{ 'Allow: /pages/' }}
+    {{ 'Allow: /blogs/' }}
+  {%- endif -%}
+
+  {%- comment -%} Host-specific rules for multi-market stores {%- endcomment -%}
+  {%- if shop.published_locales.size > 1 -%}
+    {%- for locale in shop.published_locales -%}
+      {%- unless locale.primary -%}
+        {%- if request.host contains locale.iso_code -%}
+          {%- comment -%} Block other language content on language-specific domains {%- endcomment -%}
+          {%- for other_locale in shop.published_locales -%}
+            {%- unless other_locale.iso_code == locale.iso_code -%}
+              {{ 'Disallow: /' | append: other_locale.iso_code | append: '/' }}
+            {%- endunless -%}
+          {%- endfor -%}
+        {%- endif -%}
+      {%- endunless -%}
+    {%- endfor -%}
+  {%- endif -%}
+
+  {%- if group.sitemap != blank -%}
+    {{- group.sitemap }}
+  {%- endif -%}
+{%- endfor -%}
+
+{%- comment -%} Custom crawler rules {%- endcomment -%}
+{%- if settings.seo_block_ai_crawlers -%}
+  {%- comment -%} Block AI content crawlers if setting is enabled {%- endcomment -%}
+  User-agent: GPTBot
+  Disallow: /
+
+  User-agent: ChatGPT-User
+  Disallow: /
+
+  User-agent: CCBot
+  Disallow: /
+
+  User-agent: anthropic-ai
+  Disallow: /
+{%- endif -%}
+
+{%- comment -%} Additional sitemaps {%- endcomment -%}
+{%- if settings.seo_additional_sitemap != blank -%}
+  Sitemap: {{ settings.seo_additional_sitemap }}
+{%- endif -%}

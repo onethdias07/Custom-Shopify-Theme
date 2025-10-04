@@ -1,0 +1,428 @@
+{% comment %}
+SEO Management Section
+Allows users to customize SEO settings for specific pages
+{% endcomment %}
+
+<div class="seo-management">
+  <div class="container">
+    <div class="seo-content">
+      <div class="seo-header">
+        <h2>{{ section.settings.title | default: 'SEO & Meta Information' }}</h2>
+        {% if section.settings.description != blank %}
+          <p>{{ section.settings.description }}</p>
+        {% endif %}
+      </div>
+
+      <div class="seo-grid">
+        <div class="seo-card">
+          <div class="seo-card-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M14.828 14.828a4 4 0 0 1-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <h3>Search Engine Optimization</h3>
+          <p>This page is optimized for search engines with proper meta titles, descriptions, and structured data.</p>
+          
+          <div class="seo-details">
+            <div class="seo-detail">
+              <strong>Page Title:</strong>
+              <span id="current-title">{{ page_title }} - {{ shop.name }}</span>
+            </div>
+            
+            <div class="seo-detail">
+              <strong>Meta Description:</strong>
+              <span id="current-description">
+                {% if page_description %}
+                  {{ page_description | truncate: 160 }}
+                {% else %}
+                  {{ shop.description | default: 'Visit our store for quality products and great service.' | truncate: 160 }}
+                {% endif %}
+              </span>
+            </div>
+            
+            <div class="seo-detail">
+              <strong>URL:</strong>
+              <span>{{ shop.url }}{{ request.path }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="seo-card">
+          <div class="seo-card-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="2" y="3" width="20" height="14" rx="2" ry="2" stroke="currentColor" stroke-width="2"/>
+              <line x1="8" y1="21" x2="16" y2="21" stroke="currentColor" stroke-width="2"/>
+              <line x1="12" y1="17" x2="12" y2="21" stroke="currentColor" stroke-width="2"/>
+            </svg>
+          </div>
+          <h3>Social Media Preview</h3>
+          <p>How this page will appear when shared on social media platforms.</p>
+          
+          <div class="social-preview">
+            <div class="social-preview-card">
+              {% assign preview_image = settings.social_sharing_image | default: settings.seo_default_og_image %}
+              {% if preview_image %}
+                <img src="{{ preview_image | img_url: '400x200' }}" alt="Social preview" loading="lazy">
+              {% endif %}
+              <div class="social-preview-content">
+                <h4>{{ page_title }}</h4>
+                <p>{{ page_description | default: shop.description | truncate: 100 }}</p>
+                <span class="social-preview-url">{{ shop.url | remove: 'https://' | remove: 'http://' }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="seo-card">
+          <div class="seo-card-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="m9 12 2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M21 12c.552 0 1.005-.449.95-.998a10.951 10.951 0 0 0-19.9 0c-.055.549.398.998.95.998" stroke="currentColor" stroke-width="2"/>
+            </svg>
+          </div>
+          <h3>Technical SEO</h3>
+          <p>Technical optimizations for better search engine performance.</p>
+          
+          <div class="seo-checklist">
+            <div class="seo-check-item">
+              <div class="seo-check-icon success">✓</div>
+              <span>Mobile-friendly responsive design</span>
+            </div>
+            
+            <div class="seo-check-item">
+              <div class="seo-check-icon success">✓</div>
+              <span>Fast loading performance</span>
+            </div>
+            
+            <div class="seo-check-item">
+              <div class="seo-check-icon success">✓</div>
+              <span>Structured data markup</span>
+            </div>
+            
+            <div class="seo-check-item">
+              <div class="seo-check-icon success">✓</div>
+              <span>SSL certificate enabled</span>
+            </div>
+            
+            <div class="seo-check-item">
+              <div class="seo-check-icon success">✓</div>
+              <span>Clean URL structure</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {% if section.settings.show_tips %}
+        <div class="seo-tips">
+          <h3>SEO Best Practices</h3>
+          <div class="tips-grid">
+            <div class="tip-item">
+              <h4>Optimize Your Content</h4>
+              <p>Use relevant keywords naturally in your content. Focus on providing value to your visitors.</p>
+            </div>
+            
+            <div class="tip-item">
+              <h4>Meta Descriptions</h4>
+              <p>Write compelling meta descriptions under 160 characters that encourage users to click.</p>
+            </div>
+            
+            <div class="tip-item">
+              <h4>Page Speed</h4>
+              <p>Ensure fast loading times by optimizing images and minimizing unnecessary code.</p>
+            </div>
+            
+            <div class="tip-item">
+              <h4>Mobile-First</h4>
+              <p>Design for mobile devices first, as most users browse on their phones.</p>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<style>
+  .seo-management {
+    padding: 60px 0;
+    background: {{ section.settings.background_color | default: '#f8f9fa' }};
+  }
+
+  .seo-content {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .seo-header {
+    text-align: center;
+    margin-bottom: 50px;
+  }
+
+  .seo-header h2 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--color-primary, #333);
+    margin: 0 0 16px 0;
+  }
+
+  .seo-header p {
+    font-size: 1.1rem;
+    color: var(--color-secondary, #666);
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  .seo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 30px;
+    margin-bottom: 50px;
+  }
+
+  .seo-card {
+    background: white;
+    border-radius: 16px;
+    padding: 32px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid #f0f0f0;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .seo-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.12);
+  }
+
+  .seo-card-icon {
+    width: 64px;
+    height: 64px;
+    background: var(--color-primary, #333);
+    color: white;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+
+  .seo-card h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--color-primary, #333);
+    margin: 0 0 12px 0;
+  }
+
+  .seo-card > p {
+    color: var(--color-secondary, #666);
+    margin-bottom: 24px;
+    line-height: 1.6;
+  }
+
+  .seo-details {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .seo-detail {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .seo-detail strong {
+    color: var(--color-primary, #333);
+    font-weight: 600;
+    font-size: 14px;
+  }
+
+  .seo-detail span {
+    color: var(--color-secondary, #666);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .social-preview-card {
+    border: 1px solid #e8e8e8;
+    border-radius: 12px;
+    overflow: hidden;
+    background: white;
+    transition: transform 0.3s ease;
+  }
+
+  .social-preview-card:hover {
+    transform: scale(1.02);
+  }
+
+  .social-preview-card img {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+  }
+
+  .social-preview-content {
+    padding: 16px;
+  }
+
+  .social-preview-content h4 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--color-primary, #333);
+    margin: 0 0 8px 0;
+    line-height: 1.3;
+  }
+
+  .social-preview-content p {
+    font-size: 14px;
+    color: var(--color-secondary, #666);
+    margin: 0 0 8px 0;
+    line-height: 1.4;
+  }
+
+  .social-preview-url {
+    font-size: 13px;
+    color: var(--color-accent, #007bff);
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+
+  .seo-checklist {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .seo-check-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .seo-check-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+
+  .seo-check-icon.success {
+    background: #28a745;
+    color: white;
+  }
+
+  .seo-check-item span {
+    color: var(--color-primary, #333);
+    font-size: 14px;
+  }
+
+  .seo-tips {
+    background: white;
+    border-radius: 16px;
+    padding: 40px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid #f0f0f0;
+  }
+
+  .seo-tips h3 {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: var(--color-primary, #333);
+    margin: 0 0 24px 0;
+    text-align: center;
+  }
+
+  .tips-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 24px;
+  }
+
+  .tip-item {
+    text-align: center;
+  }
+
+  .tip-item h4 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--color-primary, #333);
+    margin: 0 0 8px 0;
+  }
+
+  .tip-item p {
+    color: var(--color-secondary, #666);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  /* Mobile Responsive */
+  @media (max-width: 768px) {
+    .seo-management {
+      padding: 40px 0;
+    }
+
+    .seo-header h2 {
+      font-size: 2rem;
+    }
+
+    .seo-grid {
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+
+    .seo-card {
+      padding: 24px;
+    }
+
+    .tips-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .seo-tips {
+      padding: 24px;
+    }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "SEO Information",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Section Title",
+      "default": "SEO & Meta Information"
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "Description",
+      "default": "Learn how this page is optimized for search engines and social media."
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background Color",
+      "default": "#f8f9fa"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_tips",
+      "label": "Show SEO Tips",
+      "default": true
+    }
+  ],
+  "presets": [
+    {
+      "name": "SEO Information"
+    }
+  ]
+}
+{% endschema %}

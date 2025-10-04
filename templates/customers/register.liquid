@@ -1,0 +1,500 @@
+{% comment %}
+Customer Registration Page
+{% endcomment %}
+
+<div class="register-page-container">
+  <div class="register-form-wrapper">
+    <div class="register-header">
+      <h1 class="register-title">Create Account</h1>
+      <p class="register-subtitle">Join us today and enjoy exclusive benefits!</p>
+    </div>
+
+    {% form 'create_customer', class: 'register-form' %}
+      {% if form.errors %}
+        <div class="form-errors">
+          <div class="error-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+              <line x1="15" y1="9" x2="9" y2="15" stroke="currentColor" stroke-width="2"/>
+              <line x1="9" y1="9" x2="15" y2="15" stroke="currentColor" stroke-width="2"/>
+            </svg>
+          </div>
+          <div class="error-content">
+            <h3>Please correct the following:</h3>
+            <ul>
+              {% for error in form.errors %}
+                <li>{{ error | first | capitalize }} {{ error | last }}</li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+      {% endif %}
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="customer-first-name" class="form-label">
+            First Name
+            <span class="required">*</span>
+          </label>
+          <input 
+            type="text" 
+            id="customer-first-name" 
+            name="customer[first_name]"
+            class="form-input"
+            placeholder="Enter your first name"
+            value="{{ form.first_name }}"
+            required
+            autocomplete="given-name"
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="customer-last-name" class="form-label">
+            Last Name
+            <span class="required">*</span>
+          </label>
+          <input 
+            type="text" 
+            id="customer-last-name" 
+            name="customer[last_name]"
+            class="form-input"
+            placeholder="Enter your last name"
+            value="{{ form.last_name }}"
+            required
+            autocomplete="family-name"
+          >
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="customer-email" class="form-label">
+          Email Address
+          <span class="required">*</span>
+        </label>
+        <input 
+          type="email" 
+          id="customer-email" 
+          name="customer[email]"
+          class="form-input"
+          placeholder="Enter your email address"
+          value="{{ form.email }}"
+          required
+          autocomplete="email"
+        >
+        <div class="form-help">
+          We'll use this email to send you order updates and account information.
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="customer-password" class="form-label">
+          Password
+          <span class="required">*</span>
+        </label>
+        <div class="password-input-wrapper">
+          <input 
+            type="password" 
+            id="customer-password" 
+            name="customer[password]"
+            class="form-input"
+            placeholder="Create a strong password"
+            required
+            autocomplete="new-password"
+            minlength="8"
+          >
+          <button type="button" class="password-toggle" aria-label="Toggle password visibility">
+            <svg class="password-show" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2"/>
+              <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
+            </svg>
+            <svg class="password-hide" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.svg/2000/svg" style="display: none;">
+              <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" stroke="currentColor" stroke-width="2"/>
+              <line x1="1" y1="1" x2="23" y2="23" stroke="currentColor" stroke-width="2"/>
+            </svg>
+          </button>
+        </div>
+        <div class="password-requirements">
+          <div class="requirement-item">
+            <span class="requirement-check" id="length-check">✓</span>
+            At least 8 characters
+          </div>
+          <div class="requirement-item">
+            <span class="requirement-check" id="number-check">✓</span>
+            Contains a number
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <div class="accepts-marketing">
+          <input type="hidden" name="customer[accepts_marketing]" value="false" />
+          
+          <label class="checkbox-wrapper">
+            <input type="checkbox" name="customer[accepts_marketing]" class="checkbox-input" value="true">
+            <span class="checkbox-custom"></span>
+            <span class="checkbox-text">
+              I'd like to receive emails about new products and exclusive offers
+            </span>
+          </label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="checkbox-wrapper">
+          <input type="checkbox" required class="checkbox-input" id="terms-checkbox">
+          <span class="checkbox-custom"></span>
+          <span class="checkbox-text">
+            I agree to the <a href="/policies/terms-of-service" target="_blank">Terms of Service</a> 
+            and <a href="/policies/privacy-policy" target="_blank">Privacy Policy</a>
+            <span class="required">*</span>
+          </span>
+        </label>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="register-btn" id="register-submit">
+          <span class="btn-text">Create Account</span>
+          <span class="btn-loading" style="display: none;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" stroke-dasharray="31.416" stroke-dashoffset="31.416">
+                <animate attributeName="stroke-dasharray" dur="2s" values="0 31.416;15.708 15.708;0 31.416" repeatCount="indefinite"/>
+                <animate attributeName="stroke-dashoffset" dur="2s" values="0;-15.708;-31.416" repeatCount="indefinite"/>
+              </circle>
+            </svg>
+            Creating Account...
+          </span>
+        </button>
+      </div>
+
+      <div class="form-benefits">
+        <h3>Account Benefits</h3>
+        <ul class="benefits-list">
+          <li>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+            </svg>
+            Track your orders in real-time
+          </li>
+          <li>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+            </svg>
+            Faster checkout process
+          </li>
+          <li>
+            <svg width="16" height="16" viewBox="0 0/24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+            </svg>
+            Exclusive offers and discounts
+          </li>
+          <li>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+            </svg>
+            Save your favorite items
+          </li>
+        </ul>
+      </div>
+    {% endform %}
+
+    <div class="login-link">
+      Already have an account? 
+      <a href="{{ routes.account_login_url }}">Sign in here</a>
+    </div>
+  </div>
+</div>
+
+<style>
+  .register-page-container {
+    max-width: 520px;
+    margin: 0 auto;
+    padding: 60px 20px;
+  }
+
+  .register-form-wrapper {
+    background: var(--color-background-secondary);
+    border-radius: 12px;
+    padding: 40px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  }
+
+  .register-header {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+
+  .register-title {
+    font-size: 2rem;
+    color: var(--color-primary);
+    margin-bottom: 8px;
+    font-weight: 600;
+  }
+
+  .register-subtitle {
+    color: var(--color-secondary);
+    font-size: 1rem;
+    margin: 0;
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .form-group {
+    margin-bottom: 20px;
+  }
+
+  .form-help {
+    font-size: 12px;
+    color: var(--color-secondary);
+    margin-top: 4px;
+  }
+
+  .password-requirements {
+    margin-top: 8px;
+  }
+
+  .requirement-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--color-secondary);
+    margin-bottom: 4px;
+  }
+
+  .requirement-check {
+    color: var(--color-success);
+    font-weight: bold;
+    opacity: 0.3;
+    transition: opacity 0.2s ease;
+  }
+
+  .requirement-check.valid {
+    opacity: 1;
+  }
+
+  .checkbox-wrapper {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 1.4;
+  }
+
+  .checkbox-input {
+    display: none;
+  }
+
+  .checkbox-custom {
+    width: 18px;
+    height: 18px;
+    border: 2px solid #e8e8e8;
+    border-radius: 3px;
+    background: white;
+    position: relative;
+    flex-shrink: 0;
+    margin-top: 2px;
+    transition: all 0.2s ease;
+  }
+
+  .checkbox-input:checked + .checkbox-custom {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+  }
+
+  .checkbox-input:checked + .checkbox-custom::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+  }
+
+  .checkbox-text a {
+    color: var(--color-primary);
+    text-decoration: none;
+  }
+
+  .checkbox-text a:hover {
+    text-decoration: underline;
+  }
+
+  .register-btn {
+    width: 100%;
+    padding: 14px 24px;
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    border-radius: var(--button-border-radius);
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--animation-speed) ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .register-btn:hover:not(:disabled) {
+    opacity: 0.9;
+    transform: translateY(-1px);
+  }
+
+  .register-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .form-benefits {
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1px solid #e8e8e8;
+  }
+
+  .form-benefits h3 {
+    color: var(--color-primary);
+    font-size: 1.1rem;
+    margin-bottom: 16px;
+    text-align: center;
+  }
+
+  .benefits-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .benefits-list li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--color-secondary);
+    font-size: 14px;
+    margin-bottom: 8px;
+  }
+
+  .benefits-list svg {
+    color: var(--color-success);
+    flex-shrink: 0;
+  }
+
+  .login-link {
+    text-align: center;
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid #e8e8e8;
+    color: var(--color-secondary);
+  }
+
+  .login-link a {
+    color: var(--color-primary);
+    text-decoration: none;
+    font-weight: 500;
+  }
+
+  .login-link a:hover {
+    text-decoration: underline;
+  }
+
+  @media (max-width: 768px) {
+    .register-page-container {
+      padding: 40px 16px;
+    }
+
+    .register-form-wrapper {
+      padding: 24px;
+    }
+
+    .register-title {
+      font-size: 1.5rem;
+    }
+
+    .form-row {
+      grid-template-columns: 1fr;
+      gap: 0;
+    }
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Password toggle functionality
+    const passwordToggle = document.querySelector('.password-toggle');
+    const passwordInput = document.getElementById('customer-password');
+    const showIcon = document.querySelector('.password-show');
+    const hideIcon = document.querySelector('.password-hide');
+
+    if (passwordToggle && passwordInput) {
+      passwordToggle.addEventListener('click', function() {
+        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', type);
+        
+        if (type === 'text') {
+          showIcon.style.display = 'none';
+          hideIcon.style.display = 'block';
+        } else {
+          showIcon.style.display = 'block';
+          hideIcon.style.display = 'none';
+        }
+      });
+    }
+
+    // Password validation
+    const lengthCheck = document.getElementById('length-check');
+    const numberCheck = document.getElementById('number-check');
+
+    if (passwordInput && lengthCheck && numberCheck) {
+      passwordInput.addEventListener('input', function() {
+        const password = this.value;
+        
+        // Length check
+        if (password.length >= 8) {
+          lengthCheck.classList.add('valid');
+        } else {
+          lengthCheck.classList.remove('valid');
+        }
+        
+        // Number check
+        if (/\d/.test(password)) {
+          numberCheck.classList.add('valid');
+        } else {
+          numberCheck.classList.remove('valid');
+        }
+      });
+    }
+
+    // Form submission
+    const registerForm = document.querySelector('.register-form');
+    const registerBtn = document.getElementById('register-submit');
+    const btnText = document.querySelector('.btn-text');
+    const btnLoading = document.querySelector('.btn-loading');
+    const termsCheckbox = document.getElementById('terms-checkbox');
+
+    if (registerForm && registerBtn) {
+      registerForm.addEventListener('submit', function(e) {
+        if (!termsCheckbox.checked) {
+          e.preventDefault();
+          alert('Please agree to the Terms of Service and Privacy Policy to continue.');
+          return;
+        }
+
+        registerBtn.disabled = true;
+        btnText.style.display = 'none';
+        btnLoading.style.display = 'flex';
+      });
+    }
+  });
+</script>

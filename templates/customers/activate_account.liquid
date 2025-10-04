@@ -1,0 +1,695 @@
+{% comment %}
+Account Activation Page
+{% endcomment %}
+
+<div class="activation-page">
+  <div class="activation-container">
+    <div class="activation-header">
+      <div class="activation-icon">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" stroke="currentColor" stroke-width="2"/>
+          <polyline points="22,4 12,14.01 9,11.01" stroke="currentColor" stroke-width="2"/>
+        </svg>
+      </div>
+      <h1 class="activation-title">Activate Your Account</h1>
+      <p class="activation-subtitle">Set up your password to complete your account activation.</p>
+    </div>
+
+    <div class="activation-content">
+      {% form 'activate_customer_password' %}
+        {% if form.errors %}
+          <div class="error-message">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+              <line x1="15" y1="9" x2="9" y2="15" stroke="currentColor" stroke-width="2"/>
+              <line x1="9" y1="9" x2="15" y2="15" stroke="currentColor" stroke-width="2"/>
+            </svg>
+            <div>
+              <h3>Activation Failed</h3>
+              {% for error in form.errors %}
+                <p>{{ error | first | capitalize }} {{ error | last }}</p>
+              {% endfor %}
+            </div>
+          </div>
+        {% endif %}
+
+        <form class="activation-form" novalidate>
+          <div class="account-info">
+            <div class="info-item">
+              <span class="info-label">Email:</span>
+              <span class="info-value">{{ customer.email }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Name:</span>
+              <span class="info-value">{{ customer.first_name }} {{ customer.last_name }}</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="customer-password" class="form-label">Create Password</label>
+            <div class="input-wrapper">
+              <input 
+                type="password" 
+                id="customer-password" 
+                name="customer[password]" 
+                class="form-input" 
+                placeholder="Enter your password"
+                autocomplete="new-password"
+                required
+                minlength="6"
+                {% if form.errors contains 'password' %}aria-invalid="true" aria-describedby="password-error"{% endif %}>
+              <button type="button" class="password-toggle" id="password-toggle" aria-label="Show password">
+                <svg class="eye-open" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2"/>
+                  <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
+                </svg>
+                <svg class="eye-closed" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: none;">
+                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" stroke="currentColor" stroke-width="2"/>
+                  <line x1="1" y1="1" x2="23" y2="23" stroke="currentColor" stroke-width="2"/>
+                </svg>
+              </button>
+            </div>
+            {% if form.errors contains 'password' %}
+              <div id="password-error" class="field-error">
+                {{ form.errors.translated_fields['password'] | capitalize }} {{ form.errors.messages['password'] }}
+              </div>
+            {% endif %}
+            <div class="password-strength">
+              <div class="strength-meter">
+                <div class="strength-bar" id="strength-bar"></div>
+              </div>
+              <div class="strength-text" id="strength-text">Password strength</div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="customer-password-confirmation" class="form-label">Confirm Password</label>
+            <div class="input-wrapper">
+              <input 
+                type="password" 
+                id="customer-password-confirmation" 
+                name="customer[password_confirmation]" 
+                class="form-input" 
+                placeholder="Confirm your password"
+                autocomplete="new-password"
+                required
+                {% if form.errors contains 'password_confirmation' %}aria-invalid="true" aria-describedby="password-confirmation-error"{% endif %}>
+              <button type="button" class="password-toggle" id="password-confirmation-toggle" aria-label="Show password">
+                <svg class="eye-open" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2"/>
+                  <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
+                </svg>
+                <svg class="eye-closed" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: none;">
+                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" stroke="currentColor" stroke-width="2"/>
+                  <line x1="1" y1="1" x2="23" y2="23" stroke="currentColor" stroke-width="2"/>
+                </svg>
+              </button>
+            </div>
+            {% if form.errors contains 'password_confirmation' %}
+              <div id="password-confirmation-error" class="field-error">
+                {{ form.errors.translated_fields['password_confirmation'] | capitalize }} {{ form.errors.messages['password_confirmation'] }}
+              </div>
+            {% endif %}
+            <div class="password-match" id="password-match" style="display: none;">
+              <svg class="match-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <polyline points="20,6 9,17 4,12" stroke="currentColor" stroke-width="2"/>
+              </svg>
+              Passwords match
+            </div>
+          </div>
+
+          <div class="password-requirements">
+            <h3>Password Requirements:</h3>
+            <ul class="requirements-list">
+              <li class="requirement" id="req-length">
+                <svg class="req-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                </svg>
+                At least 6 characters long
+              </li>
+              <li class="requirement" id="req-letter">
+                <svg class="req-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                </svg>
+                Contains at least one letter
+              </li>
+              <li class="requirement" id="req-number">
+                <svg class="req-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                </svg>
+                Contains at least one number (recommended)
+              </li>
+            </ul>
+          </div>
+
+          <button type="submit" class="btn-primary btn-full-width" id="activation-submit-btn">
+            <span class="btn-text">Activate Account</span>
+            <span class="btn-loading" style="display: none;">
+              <svg class="spinner" width="20" height="20" viewBox="0 0 24 24">
+                <circle class="spinner-path" cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/>
+              </svg>
+              Activating...
+            </span>
+          </button>
+        </form>
+
+        <div class="activation-footer">
+          <div class="security-note">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+              <path d="M12 6v6l4 2" stroke="currentColor" stroke-width="2"/>
+            </svg>
+            <span>This activation link will expire in 24 hours for security reasons.</span>
+          </div>
+          
+          <div class="support-link">
+            <p>Need help? <a href="/pages/contact">Contact our support team</a></p>
+          </div>
+        </div>
+      {% endform %}
+    </div>
+  </div>
+</div>
+
+<style>
+  .activation-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 40px 20px;
+  }
+
+  .activation-container {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    width: 100%;
+    max-width: 480px;
+    animation: slideUp 0.6s ease-out;
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .activation-header {
+    text-align: center;
+    padding: 40px 40px 20px;
+    background: var(--color-background-secondary, #f8f9fa);
+  }
+
+  .activation-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 80px;
+    height: 80px;
+    background: var(--color-success, #28a745);
+    color: white;
+    border-radius: 50%;
+    margin-bottom: 20px;
+  }
+
+  .activation-title {
+    font-size: 1.8rem;
+    color: var(--color-primary, #2c3e50);
+    margin: 0 0 8px 0;
+    font-weight: 600;
+  }
+
+  .activation-subtitle {
+    color: var(--color-secondary, #6c757d);
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  .activation-content {
+    padding: 40px;
+  }
+
+  .account-info {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 32px;
+  }
+
+  .info-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+
+  .info-item:last-child {
+    margin-bottom: 0;
+  }
+
+  .info-label {
+    color: var(--color-secondary, #6c757d);
+    font-weight: 500;
+  }
+
+  .info-value {
+    color: var(--color-primary, #2c3e50);
+    font-weight: 600;
+  }
+
+  .error-message {
+    display: flex;
+    gap: 16px;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 24px;
+    background: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fca5a5;
+  }
+
+  .error-message svg {
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .error-message h3 {
+    margin: 0 0 4px 0;
+    font-size: 1rem;
+    font-weight: 600;
+  }
+
+  .error-message p {
+    margin: 0;
+    font-size: 14px;
+  }
+
+  .activation-form {
+    margin-bottom: 32px;
+  }
+
+  .form-group {
+    margin-bottom: 24px;
+  }
+
+  .form-label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: var(--color-primary, #2c3e50);
+  }
+
+  .input-wrapper {
+    position: relative;
+  }
+
+  .form-input {
+    width: 100%;
+    padding: 14px 16px;
+    border: 2px solid #e8e8e8;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    background: white;
+  }
+
+  .form-input:focus {
+    outline: none;
+    border-color: var(--color-primary, #2c3e50);
+    box-shadow: 0 0 0 3px rgba(44, 62, 80, 0.1);
+  }
+
+  .password-toggle {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--color-secondary, #6c757d);
+    padding: 4px;
+  }
+
+  .password-toggle:hover {
+    color: var(--color-primary, #2c3e50);
+  }
+
+  .field-error {
+    color: #dc3545;
+    font-size: 14px;
+    margin-top: 8px;
+  }
+
+  .password-strength {
+    margin-top: 8px;
+  }
+
+  .strength-meter {
+    height: 4px;
+    background: #e8e8e8;
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 4px;
+  }
+
+  .strength-bar {
+    height: 100%;
+    width: 0%;
+    transition: all 0.3s ease;
+    border-radius: 2px;
+  }
+
+  .strength-text {
+    font-size: 12px;
+    color: var(--color-secondary, #6c757d);
+  }
+
+  .password-match {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 8px;
+    color: var(--color-success, #28a745);
+    font-size: 14px;
+  }
+
+  .password-requirements {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 24px;
+  }
+
+  .password-requirements h3 {
+    margin: 0 0 12px 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-primary, #2c3e50);
+  }
+
+  .requirements-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .requirement {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    font-size: 14px;
+    color: var(--color-secondary, #6c757d);
+  }
+
+  .requirement:last-child {
+    margin-bottom: 0;
+  }
+
+  .requirement.valid {
+    color: var(--color-success, #28a745);
+  }
+
+  .requirement.valid .req-icon {
+    color: var(--color-success, #28a745);
+  }
+
+  .req-icon {
+    flex-shrink: 0;
+  }
+
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px 24px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border: 2px solid;
+    cursor: pointer;
+    font-size: 16px;
+    min-height: 48px;
+    background: var(--color-primary, #2c3e50);
+    color: white;
+    border-color: var(--color-primary, #2c3e50);
+  }
+
+  .btn-full-width {
+    width: 100%;
+  }
+
+  .btn-primary:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+    text-decoration: none;
+  }
+
+  .btn-primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .btn-loading {
+    display: none !important;
+  }
+
+  .btn-primary.loading .btn-text {
+    display: none;
+  }
+
+  .btn-primary.loading .btn-loading {
+    display: flex !important;
+  }
+
+  .spinner {
+    animation: spin 1s linear infinite;
+  }
+
+  .spinner-path {
+    stroke-dasharray: 90, 150;
+    stroke-dashoffset: 0;
+    stroke-linecap: round;
+  }
+
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+
+  .activation-footer {
+    border-top: 1px solid #e8e8e8;
+    padding-top: 20px;
+  }
+
+  .security-note {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+    padding: 12px;
+    background: #fff3cd;
+    color: #856404;
+    border-radius: 6px;
+    font-size: 14px;
+  }
+
+  .support-link {
+    text-align: center;
+  }
+
+  .support-link p {
+    margin: 0;
+    font-size: 14px;
+    color: var(--color-secondary, #6c757d);
+  }
+
+  .support-link a {
+    color: var(--color-primary, #2c3e50);
+    text-decoration: none;
+    font-weight: 500;
+  }
+
+  .support-link a:hover {
+    text-decoration: underline;
+  }
+
+  /* Mobile Responsive */
+  @media (max-width: 768px) {
+    .activation-page {
+      padding: 20px;
+      align-items: flex-start;
+    }
+
+    .activation-container {
+      margin-top: 40px;
+    }
+
+    .activation-header {
+      padding: 30px 20px 20px;
+    }
+
+    .activation-content {
+      padding: 30px 20px;
+    }
+
+    .activation-title {
+      font-size: 1.5rem;
+    }
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('.activation-form');
+    const submitBtn = document.getElementById('activation-submit-btn');
+    const passwordInput = document.getElementById('customer-password');
+    const passwordConfirmInput = document.getElementById('customer-password-confirmation');
+    const passwordToggle = document.getElementById('password-toggle');
+    const passwordConfirmToggle = document.getElementById('password-confirmation-toggle');
+    const strengthBar = document.getElementById('strength-bar');
+    const strengthText = document.getElementById('strength-text');
+    const passwordMatch = document.getElementById('password-match');
+
+    // Form submission
+    if (form && submitBtn) {
+      form.addEventListener('submit', function(e) {
+        submitBtn.classList.add('loading');
+        submitBtn.disabled = true;
+      });
+    }
+
+    // Password toggle functionality
+    function setupPasswordToggle(toggle, input) {
+      if (toggle && input) {
+        toggle.addEventListener('click', function() {
+          const eyeOpen = toggle.querySelector('.eye-open');
+          const eyeClosed = toggle.querySelector('.eye-closed');
+          
+          if (input.type === 'password') {
+            input.type = 'text';
+            eyeOpen.style.display = 'none';
+            eyeClosed.style.display = 'block';
+            toggle.setAttribute('aria-label', 'Hide password');
+          } else {
+            input.type = 'password';
+            eyeOpen.style.display = 'block';
+            eyeClosed.style.display = 'none';
+            toggle.setAttribute('aria-label', 'Show password');
+          }
+        });
+      }
+    }
+
+    setupPasswordToggle(passwordToggle, passwordInput);
+    setupPasswordToggle(passwordConfirmToggle, passwordConfirmInput);
+
+    // Password strength checker
+    if (passwordInput && strengthBar && strengthText) {
+      passwordInput.addEventListener('input', function() {
+        const password = this.value;
+        const strength = calculatePasswordStrength(password);
+        updatePasswordStrength(strength);
+        checkPasswordRequirements(password);
+        checkPasswordMatch();
+      });
+    }
+
+    // Password confirmation checker
+    if (passwordConfirmInput) {
+      passwordConfirmInput.addEventListener('input', checkPasswordMatch);
+    }
+
+    function calculatePasswordStrength(password) {
+      let score = 0;
+      if (password.length >= 6) score += 25;
+      if (password.length >= 8) score += 25;
+      if (/[a-zA-Z]/.test(password)) score += 25;
+      if (/[0-9]/.test(password)) score += 25;
+      return Math.min(100, score);
+    }
+
+    function updatePasswordStrength(strength) {
+      strengthBar.style.width = strength + '%';
+      
+      if (strength <= 25) {
+        strengthBar.style.backgroundColor = '#dc3545';
+        strengthText.textContent = 'Weak password';
+        strengthText.style.color = '#dc3545';
+      } else if (strength <= 50) {
+        strengthBar.style.backgroundColor = '#ffc107';
+        strengthText.textContent = 'Fair password';
+        strengthText.style.color = '#ffc107';
+      } else if (strength <= 75) {
+        strengthBar.style.backgroundColor = '#fd7e14';
+        strengthText.textContent = 'Good password';
+        strengthText.style.color = '#fd7e14';
+      } else {
+        strengthBar.style.backgroundColor = '#28a745';
+        strengthText.textContent = 'Strong password';
+        strengthText.style.color = '#28a745';
+      }
+    }
+
+    function checkPasswordRequirements(password) {
+      const requirements = {
+        length: password.length >= 6,
+        letter: /[a-zA-Z]/.test(password),
+        number: /[0-9]/.test(password)
+      };
+
+      Object.keys(requirements).forEach(req => {
+        const element = document.getElementById(`req-${req}`);
+        if (element) {
+          if (requirements[req]) {
+            element.classList.add('valid');
+            element.querySelector('.req-icon').innerHTML = `
+              <polyline points="20,6 9,17 4,12" stroke="currentColor" stroke-width="2"/>
+            `;
+          } else {
+            element.classList.remove('valid');
+            element.querySelector('.req-icon').innerHTML = `
+              <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+            `;
+          }
+        }
+      });
+    }
+
+    function checkPasswordMatch() {
+      if (passwordInput && passwordConfirmInput && passwordMatch) {
+        const password = passwordInput.value;
+        const confirmPassword = passwordConfirmInput.value;
+        
+        if (confirmPassword.length > 0) {
+          if (password === confirmPassword) {
+            passwordMatch.style.display = 'flex';
+            passwordMatch.style.color = '#28a745';
+            passwordConfirmInput.style.borderColor = '#28a745';
+          } else {
+            passwordMatch.style.display = 'none';
+            passwordConfirmInput.style.borderColor = '#dc3545';
+          }
+        } else {
+          passwordMatch.style.display = 'none';
+          passwordConfirmInput.style.borderColor = '#e8e8e8';
+        }
+      }
+    }
+  });
+</script>

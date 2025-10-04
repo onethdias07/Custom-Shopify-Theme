@@ -1,3 +1,12 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "sections": {
     "hero": {
@@ -27,6 +36,149 @@
         "custom_height": 600
       }
     },
+    "features_intro": {
+      "type": "features",
+      "blocks": {
+        "feature_LttQzH": {
+          "type": "feature",
+          "settings": {
+            "icon_type": "svg",
+            "icon_svg": "<svg viewbox=\"0 0 24 24\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"></path></svg>",
+            "icon_emoji": "✨",
+            "title": "Premium Quality",
+            "description": "We use only the finest materials and craftsmanship to ensure every product meets our high standards.",
+            "link_text": "",
+            "link_url": ""
+          }
+        },
+        "feature_3d3ggq": {
+          "type": "feature",
+          "settings": {
+            "icon_type": "svg",
+            "icon_svg": "<svg viewbox=\"0 0 24 24\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"></path></svg>",
+            "icon_emoji": "✨",
+            "title": "Premium Quality",
+            "description": "We use only the finest materials and craftsmanship to ensure every product meets our high standards.",
+            "link_text": "",
+            "link_url": ""
+          }
+        },
+        "feature_nrfpcD": {
+          "type": "feature",
+          "settings": {
+            "icon_type": "svg",
+            "icon_svg": "<svg viewbox=\"0 0 24 24\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"></path></svg>",
+            "icon_emoji": "✨",
+            "title": "Premium Quality",
+            "description": "We use only the finest materials and craftsmanship to ensure every product meets our high standards.",
+            "link_text": "",
+            "link_url": ""
+          }
+        }
+      },
+      "block_order": [
+        "feature_LttQzH",
+        "feature_3d3ggq",
+        "feature_nrfpcD"
+      ],
+      "settings": {
+        "eyebrow_text": "Why Choose Us",
+        "heading": "Built for Excellence",
+        "subheading": "Discover what makes us different and why thousands of customers trust us for their needs.",
+        "header_spacing": 60,
+        "grid_columns": "3",
+        "grid_gap": 32,
+        "text_alignment": "center",
+        "icon_size": 48,
+        "icon_color": "#2c2c2c",
+        "card_padding_top": 32,
+        "card_padding_horizontal": 24,
+        "card_padding_bottom": 32,
+        "card_border_radius": 8,
+        "card_shadow": false,
+        "card_border": true,
+        "card_border_color": "#e8e8e8",
+        "card_bg_color": "#ffffff",
+        "show_action_button": false,
+        "action_button_text": "Learn More",
+        "action_button_link": "",
+        "button_padding_vertical": 16,
+        "button_padding_horizontal": 32,
+        "button_border_radius": 4,
+        "section_bg_color": "#ffffff",
+        "eyebrow_color": "#666666",
+        "heading_color": "#2c2c2c",
+        "subheading_color": "#666666",
+        "title_color": "#2c2c2c",
+        "description_color": "#666666",
+        "link_color": "#2c2c2c",
+        "button_bg_color": "#2c2c2c",
+        "button_text_color": "#ffffff",
+        "section_padding_top": 80,
+        "section_padding_bottom": 60
+      }
+    },
+    "collection_showcase": {
+      "type": "collection-grid",
+      "blocks": {
+        "collection_U68dU9": {
+          "type": "collection",
+          "settings": {
+            "collection": "jackets",
+            "custom_title": ""
+          }
+        },
+        "collection_V7jehR": {
+          "type": "collection",
+          "settings": {
+            "collection": "t-shirts-tops",
+            "custom_title": ""
+          }
+        },
+        "collection_LYpRC3": {
+          "type": "collection",
+          "settings": {
+            "collection": "hoodies-sweatshirts",
+            "custom_title": ""
+          }
+        }
+      },
+      "block_order": [
+        "collection_U68dU9",
+        "collection_V7jehR",
+        "collection_LYpRC3"
+      ],
+      "settings": {
+        "eyebrow_text": "Shop by Category",
+        "heading": "Explore Our Collections",
+        "subheading": "Discover our carefully curated collections designed for every style and occasion.",
+        "header_spacing": 60,
+        "grid_columns": "3",
+        "grid_gap": 24,
+        "card_padding_top": 20,
+        "card_padding_horizontal": 20,
+        "card_padding_bottom": 20,
+        "card_border_radius": 8,
+        "image_border_radius": 6,
+        "card_shadow": true,
+        "card_border": false,
+        "card_border_color": "#e8e8e8",
+        "show_description": true,
+        "show_product_count": true,
+        "show_overlay": false,
+        "overlay_color": "#000000",
+        "overlay_opacity": 20,
+        "section_bg_color": "#f8f9fa",
+        "eyebrow_color": "#666666",
+        "heading_color": "#2c2c2c",
+        "subheading_color": "#666666",
+        "title_color": "#2c2c2c",
+        "description_color": "#666666",
+        "count_color": "#999999",
+        "section_padding_top": 60,
+        "section_padding_bottom": 80
+      }
+    },
     "featured_collection_PcVntL": {
       "type": "featured-collection",
       "name": "Featured Collection",
@@ -40,7 +192,7 @@
         "show_view_all": true,
         "button_text": "View All",
         "section_padding_top": 80,
-        "section_padding_bottom": 80,
+        "section_padding_bottom": 60,
         "header_spacing": 60,
         "grid_gap": 40,
         "card_padding_top": 20,
@@ -55,10 +207,152 @@
         "heading_color": "#2c2c2c",
         "subheading_color": "#666666"
       }
+    },
+    "about_brand": {
+      "type": "about-brand",
+      "settings": {
+        "eyebrow_text": "Our Story",
+        "heading": "Crafting Quality Since Day One",
+        "content": "<p>We believe in creating products that stand the test of time. Our commitment to quality, sustainability, and customer satisfaction drives everything we do.</p><p>From our humble beginnings to becoming a trusted brand, we've never compromised on our values of excellence and innovation.</p>",
+        "image_border_radius": 8,
+        "layout": "image-right",
+        "button_text": "Learn More",
+        "button_link": "/pages/about",
+        "button_padding_vertical": 16,
+        "button_padding_horizontal": 32,
+        "button_border_radius": 4,
+        "section_bg_color": "#ffffff",
+        "eyebrow_color": "#666666",
+        "heading_color": "#2c2c2c",
+        "text_color": "#666666",
+        "button_bg_color": "#2c2c2c",
+        "button_text_color": "#ffffff",
+        "section_padding_top": 60,
+        "section_padding_bottom": 80
+      }
+    },
+
+    "testimonials_simple": {
+      "type": "testimonials-simple",
+      "blocks": {
+        "testimonial_1": {
+          "type": "testimonial",
+          "settings": {
+            "quote": "Amazing quality and fast shipping. I couldn't be happier with my purchase!",
+            "customer_name": "Sarah Johnson",
+            "customer_title": "Verified Customer",
+            "rating": 5
+          }
+        },
+        "testimonial_2": {
+          "type": "testimonial",
+          "settings": {
+            "quote": "Excellent customer service and top-notch products. Highly recommend!",
+            "customer_name": "Mike Davis",
+            "customer_title": "Repeat Customer",
+            "rating": 5
+          }
+        },
+        "testimonial_3": {
+          "type": "testimonial",
+          "settings": {
+            "quote": "The product exceeded my expectations. Great value for money!",
+            "customer_name": "Emma Wilson",
+            "customer_title": "New York, NY",
+            "rating": 4
+          }
+        }
+      },
+      "block_order": ["testimonial_1", "testimonial_2", "testimonial_3"],
+      "settings": {
+        "heading": "What Our Customers Say",
+        "subheading": "Don't just take our word for it - see what our satisfied customers have to say about their experience",
+        "bg_color": "#f8f9fa",
+        "section_padding_top": 70,
+        "section_padding_bottom": 70
+      }
+    },
+
+    "recent_blog": {
+      "type": "recent-blog",
+      "settings": {
+        "eyebrow_text": "From Our Blog",
+        "heading": "Latest Articles",
+        "subheading": "Stay updated with our latest news, tips, and insights from industry experts.",
+        "header_spacing": 60,
+        "blog": "news",
+        "articles_to_show": 3,
+        "grid_columns": "3",
+        "grid_gap": 24,
+        "card_padding_top": 24,
+        "card_padding_horizontal": 24,
+        "card_padding_bottom": 24,
+        "card_border_radius": 8,
+        "image_border_radius": 6,
+        "card_shadow": true,
+        "card_border": false,
+        "card_border_color": "#e8e8e8",
+        "card_bg_color": "#ffffff",
+        "show_image": true,
+        "show_date": true,
+        "show_author": false,
+        "show_excerpt": true,
+        "excerpt_length": 120,
+        "show_read_more": true,
+        "read_more_text": "Read More",
+        "show_view_all": true,
+        "view_all_text": "View All Articles",
+        "button_padding_vertical": 16,
+        "button_padding_horizontal": 32,
+        "button_border_radius": 4,
+        "section_bg_color": "#ffffff",
+        "eyebrow_color": "#666666",
+        "heading_color": "#2c2c2c",
+        "subheading_color": "#666666",
+        "title_color": "#2c2c2c",
+        "meta_color": "#999999",
+        "excerpt_color": "#666666",
+        "link_color": "#2c2c2c",
+        "button_text_color": "#2c2c2c",
+        "button_border_color": "#2c2c2c",
+        "section_padding_top": 60,
+        "section_padding_bottom": 80
+      }
+    },
+
+    "newsletter": {
+      "type": "newsletter",
+      "settings": {
+        "layout": "centered",
+        "icon_type": "email",
+        "heading": "Stay in the Loop",
+        "subheading": "Subscribe to our newsletter for exclusive offers, new arrivals, and style tips delivered straight to your inbox.",
+        "placeholder": "Enter your email address",
+        "button_text": "Subscribe",
+        "show_benefits": true,
+        "benefit_1": "Exclusive offers & discounts",
+        "benefit_2": "New product announcements",
+        "benefit_3": "Style tips & trends",
+        "show_consent": true,
+        "consent_text": "I agree to receive marketing emails and understand I can unsubscribe at any time.",
+        "show_privacy_link": true,
+        "show_disclaimer": true,
+        "disclaimer_text": "No spam, unsubscribe at any time.",
+        "success_heading": "Welcome to our newsletter!",
+        "success_message": "Thank you for subscribing. You'll receive a confirmation email shortly.",
+        "background_color": "#333333",
+        "text_color": "#e8e8e8"
+      }
     }
   },
   "order": [
     "hero",
-    "featured_collection_PcVntL"
+    "features_intro",
+    "collection_showcase",
+    "featured_collection_PcVntL",
+    "about_brand",
+    "testimonials_simple",
+    "recent_blog",
+    "newsletter"
   ]
 }

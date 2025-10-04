@@ -1,0 +1,213 @@
+{% comment %}
+SEO Enhancement Snippet
+Can be included in any template for additional SEO features
+Usage: {% render 'seo-enhancements' %}
+{% endcomment %}
+
+{% comment %} Canonical URL {% endcomment %}
+{% if canonical_url != request.url %}
+  <link rel="canonical" href="{{ canonical_url }}">
+{% endif %}
+
+{% comment %} Hreflang for multi-language support following Shopify's recommendations {% endcomment %}
+{% if localization.available_countries.size > 1 or localization.available_languages.size > 1 %}
+  {% for locale in shop.published_locales %}
+    {% assign locale_url = request.url %}
+    {% if locale.root_url != blank %}
+      {% assign locale_url = locale.root_url | append: request.path %}
+    {% endif %}
+    <link rel="alternate" hreflang="{{ locale.iso_code }}" href="{{ locale_url }}">
+  {% endfor %}
+  
+  {%- comment -%} x-default should point to the primary locale {%- endcomment -%}
+  {% assign default_locale = shop.published_locales | where: 'primary', true | first %}
+  {% if default_locale %}
+    {% assign default_url = request.url %}
+    {% if default_locale.root_url != blank %}
+      {% assign default_url = default_locale.root_url | append: request.path %}
+    {% endif %}
+    <link rel="alternate" hreflang="x-default" href="{{ default_url }}">
+  {% endif %}
+{% endif %}
+
+{% comment %} Prev/Next for paginated content {% endcomment %}
+{% if paginate %}
+  {% if paginate.previous %}
+    <link rel="prev" href="{{ paginate.previous.url }}">
+  {% endif %}
+  {% if paginate.next %}
+    <link rel="next" href="{{ paginate.next.url }}">
+  {% endif %}
+{% endif %}
+
+{% comment %} Product Schema for Collection Pages {% endcomment %}
+{% if request.page_type == 'collection' and collection.products.size > 0 %}
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": {{ collection.title | json }},
+    "description": {{ collection.description | strip_html | json }},
+    "url": {{ shop.url | append: collection.url | json }},
+    "mainEntity": {
+      "@type": "ItemList",
+      "numberOfItems": {{ collection.products_count }},
+      "itemListElement": [
+        {% for product in collection.products limit: 20 %}
+          {
+            "@type": "Product",
+            "position": {{ forloop.index }},
+            "name": {{ product.title | json }},
+            "url": {{ shop.url | append: product.url | json }},
+            "image": {{ product.featured_image | img_url: '400x400' | prepend: 'https:' | json }},
+            "offers": {
+              "@type": "Offer",
+              "priceCurrency": {{ cart.currency.iso_code | json }},
+              "price": "{{ product.price | money_without_currency | remove: ',' }}",
+              "availability": "{% if product.available %}https://schema.org/InStock{% else %}https://schema.org/OutOfStock{% endif %}"
+            }
+          }{% unless forloop.last %},{% endunless %}
+        {% endfor %}
+      ]
+    }
+  }
+  </script>
+{% endif %}
+
+{% comment %} FAQ Schema (can be used on pages with FAQ content) {% endcomment %}
+{% if page and page.content contains 'faq' or page.content contains 'FAQ' %}
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "How do I place an order?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "You can place an order by browsing our products, adding items to your cart, and proceeding to checkout."
+        }
+      },
+      {
+        "@type": "Question", 
+        "name": "What is your return policy?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "We offer a 30-day return policy for all unused items in original packaging."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How long does shipping take?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Standard shipping typically takes 5-7 business days, while express shipping takes 2-3 business days."
+        }
+      }
+    ]
+  }
+  </script>
+{% endif %}
+
+{% comment %} Breadcrumb Schema {% endcomment %}
+{% unless request.page_type == 'index' %}
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": {{ shop.url | json }}
+      }
+      {% if request.page_type == 'product' %}
+        ,{
+          "@type": "ListItem",
+          "position": 2,
+          "name": {{ collections[product.collections.first.handle].title | default: 'Products' | json }},
+          "item": {{ shop.url | append: collections[product.collections.first.handle].url | default: '/collections/all' | json }}
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": {{ product.title | json }},
+          "item": {{ shop.url | append: product.url | json }}
+        }
+      {% elsif request.page_type == 'collection' %}
+        ,{
+          "@type": "ListItem",
+          "position": 2,
+          "name": {{ collection.title | json }},
+          "item": {{ shop.url | append: collection.url | json }}
+        }
+      {% elsif request.page_type == 'article' %}
+        ,{
+          "@type": "ListItem",
+          "position": 2,
+          "name": {{ blog.title | json }},
+          "item": {{ shop.url | append: blog.url | json }}
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": {{ article.title | json }},
+          "item": {{ shop.url | append: article.url | json }}
+        }
+      {% elsif request.page_type == 'blog' %}
+        ,{
+          "@type": "ListItem",
+          "position": 2,
+          "name": {{ blog.title | json }},
+          "item": {{ shop.url | append: blog.url | json }}
+        }
+      {% elsif request.page_type == 'page' %}
+        ,{
+          "@type": "ListItem",
+          "position": 2,
+          "name": {{ page.title | json }},
+          "item": {{ shop.url | append: page.url | json }}
+        }
+      {% endif %}
+    ]
+  }
+  </script>
+{% endunless %}
+
+{% comment %} Local Business Schema (for stores with physical locations) {% endcomment %}
+{% if settings.store_address != blank %}
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    "name": {{ shop.name | json }},
+    "image": {{ shop.brand.logo | default: settings.social_sharing_image | default: settings.seo_default_og_image | img_url: '400x400' | prepend: 'https:' | json }},
+    "url": {{ shop.url | json }},
+    "telephone": {{ settings.store_phone | json }},
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": {{ settings.store_address | json }},
+      "addressLocality": {{ settings.store_city | json }},
+      "addressRegion": {{ settings.store_state | json }},
+      "postalCode": {{ settings.store_zip | json }},
+      "addressCountry": {{ settings.store_country | json }}
+    },
+    "openingHoursSpecification": [
+      {
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+        "opens": "{{ settings.store_hours_weekday_open | default: '09:00' }}",
+        "closes": "{{ settings.store_hours_weekday_close | default: '18:00' }}"
+      },
+      {
+        "@type": "OpeningHoursSpecification", 
+        "dayOfWeek": "Saturday",
+        "opens": "{{ settings.store_hours_saturday_open | default: '09:00' }}",
+        "closes": "{{ settings.store_hours_saturday_close | default: '17:00' }}"
+      }
+    ]
+  }
+  </script>
+{% endif %}

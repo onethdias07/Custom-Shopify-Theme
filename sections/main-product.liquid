@@ -90,12 +90,15 @@
           <h1 class="product-title" {{ block.shopify_attributes }}>{{ product.title }}</h1>
         
         {% when 'price' %}
-          <div class="product-price" {{ block.shopify_attributes }}>
-            {% if product.compare_at_price > product.price %}
-              <span class="price-on-sale">{{ product.price | money }}</span>
-              <span class="compare-price">{{ product.compare_at_price | money }}</span>
+          <div class="product-price" {{ block.shopify_attributes }} 
+               data-price="{{ product.selected_or_first_available_variant.price }}"
+               data-compare-price="{{ product.selected_or_first_available_variant.compare_at_price }}">
+            {% assign current_variant = product.selected_or_first_available_variant %}
+            {% if current_variant.compare_at_price > current_variant.price %}
+              <span class="price-on-sale" data-price-display>{{ current_variant.price | money }}</span>
+              <span class="compare-price" data-compare-price-display>{{ current_variant.compare_at_price | money }}</span>
             {% else %}
-              <span class="price">{{ product.price | money }}</span>
+              <span class="price" data-price-display>{{ current_variant.price | money }}</span>
             {% endif %}
           </div>
         
@@ -110,13 +113,23 @@
           {% if product.variants.size > 1 %}
             <div class="product-variants" {{ block.shopify_attributes }}>
               {% for option in product.options_with_values %}
-                <div class="variant-group">
+                <div class="variant-group" data-option-position="{{ forloop.index }}">
                   <label class="variant-label">{{ option.name }}</label>
                   <div class="variant-options">
                     {% for value in option.values %}
-                      <div class="variant-option{% if forloop.first %} selected{% endif %}" 
+                      {% assign is_selected = false %}
+                      {% if product.selected_or_first_available_variant.options[forloop.index0] == value %}
+                        {% assign is_selected = true %}
+                      {% endif %}
+                      <div class="variant-option{% if is_selected %} selected{% endif %}" 
                            data-option="{{ option.name | handleize }}" 
-                           data-value="{{ value | escape }}">
+                           data-value="{{ value | escape }}"
+                           data-option-position="{{ forloop.index }}"
+                           {% comment %} Add color swatch if this is a color option {% endcomment %}
+                           {% if option.name contains 'Color' or option.name contains 'Colour' %}
+                             data-color="{{ value | handleize }}"
+                             style="--swatch-color: {{ value | handleize }}"
+                           {% endif %}>
                         {{ value }}
                       </div>
                     {% endfor %}
@@ -140,14 +153,31 @@
           </div>
         
         {% when 'buy_buttons' %}
-          {% form 'product', product %}
-            <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}">
+          {% form 'product', product, id: 'product-form' %}
+            <input type="hidden" name="id" id="variant-id" value="{{ product.selected_or_first_available_variant.id }}">
+            <input type="hidden" name="quantity" id="form-quantity" value="1">
             <div class="product-form-buttons" {{ block.shopify_attributes }}>
-              <button class="add-to-cart-btn" type="submit">
-                {{ block.settings.add_to_cart_text | default: 'Add to Cart' }}
+              <div class="availability-status" id="availability-status">
+                {% if product.selected_or_first_available_variant.available %}
+                  <span class="in-stock">✓ In Stock</span>
+                {% else %}
+                  <span class="out-of-stock">✗ Out of Stock</span>
+                {% endif %}
+              </div>
+              <button class="add-to-cart-btn" type="submit" 
+                      id="add-to-cart-button"
+                      data-add-to-cart-text="{{ block.settings.add_to_cart_text | default: 'Add to Cart' }}"
+                      {% unless product.selected_or_first_available_variant.available %}disabled{% endunless %}>
+                {% if product.selected_or_first_available_variant.available %}
+                  {{ block.settings.add_to_cart_text | default: 'Add to Cart' }}
+                {% else %}
+                  Sold Out
+                {% endif %}
               </button>
               {% if block.settings.show_dynamic_checkout %}
-                {{ form | payment_button }}
+                <div id="dynamic-checkout-wrapper" {% unless product.selected_or_first_available_variant.available %}style="display: none;"{% endunless %}>
+                  {{ form | payment_button }}
+                </div>
               {% endif %}
             </div>
           {% endform %}
@@ -291,105 +321,342 @@
   // Quantity controls
   function decreaseQuantity() {
     const quantityInput = document.getElementById('quantity');
+    const formQuantity = document.getElementById('form-quantity');
     const currentValue = parseInt(quantityInput.value);
-    if (currentValue > 1) {
-      quantityInput.value = currentValue - 1;
+    const minValue = parseInt(quantityInput.getAttribute('min')) || 1;
+    
+    if (currentValue > minValue) {
+      const newValue = currentValue - 1;
+      quantityInput.value = newValue;
+      if (formQuantity) formQuantity.value = newValue;
     }
   }
 
   function increaseQuantity() {
     const quantityInput = document.getElementById('quantity');
+    const formQuantity = document.getElementById('form-quantity');
     const currentValue = parseInt(quantityInput.value);
     const maxValue = parseInt(quantityInput.getAttribute('max')) || 10;
+    
     if (currentValue < maxValue) {
-      quantityInput.value = currentValue + 1;
+      const newValue = currentValue + 1;
+      quantityInput.value = newValue;
+      if (formQuantity) formQuantity.value = newValue;
     }
   }
 
+  // Product data and variant handling
+  const productData = {
+    variants: {{ product.variants | json }},
+    options: {{ product.options | json }},
+    currency: '{{ cart.currency.iso_code }}',
+    moneyFormat: {{ shop.money_format | json }},
+    moneyWithCurrencyFormat: {{ shop.money_with_currency_format | json }}
+  };
+  
+  // Debug: Log the money format to console
+  console.log('Money format:', productData.moneyFormat);
+  console.log('Currency:', productData.currency);
+
   // Variant selection
-  document.querySelectorAll('.variant-option').forEach(option => {
-    option.addEventListener('click', function() {
-      const parent = this.parentElement;
-      parent.querySelectorAll('.variant-option').forEach(opt => opt.classList.remove('selected'));
-      this.classList.add('selected');
-      
-      // Update variant ID based on selected options
-      updateVariant();
+  function initVariantSelection() {
+    document.querySelectorAll('.variant-option').forEach(option => {
+      option.addEventListener('click', function(e) {
+        // Don't allow selection of disabled options
+        if (this.classList.contains('disabled')) {
+          e.preventDefault();
+          return false;
+        }
+        
+        const parent = this.parentElement;
+        parent.querySelectorAll('.variant-option').forEach(opt => opt.classList.remove('selected'));
+        this.classList.add('selected');
+        
+        // Update variant ID based on selected options
+        updateVariant();
+      });
     });
-  });
+  }
 
   // Update variant based on selected options
   function updateVariant() {
-    const selectedOptions = {};
-    document.querySelectorAll('.variant-group').forEach(group => {
+    const selectedOptions = [];
+    
+    // Get selected options in order
+    document.querySelectorAll('.variant-group').forEach((group, index) => {
       const selectedOption = group.querySelector('.variant-option.selected');
       if (selectedOption) {
-        const optionName = selectedOption.getAttribute('data-option');
-        const optionValue = selectedOption.getAttribute('data-value');
-        if (optionName && optionValue) {
-          selectedOptions[optionName] = optionValue;
-        }
+        selectedOptions[index] = selectedOption.getAttribute('data-value');
       }
     });
 
     // Find matching variant
-    const variants = {{ product.variants | json }};
-    const matchingVariant = variants.find(variant => {
+    const matchingVariant = productData.variants.find(variant => {
       return variant.options.every((option, index) => {
-        const optionName = {{ product.options | map: 'name' | map: 'handleize' | json }}[index];
-        return selectedOptions[optionName] === option;
+        return selectedOptions[index] === option;
       });
     });
 
     if (matchingVariant) {
-      // Update hidden input
-      const hiddenInput = document.querySelector('input[name="id"]');
-      if (hiddenInput) {
-        hiddenInput.value = matchingVariant.id;
-      }
+      updateVariantData(matchingVariant);
+    }
+  }
 
-      // Update price display
-      const priceElement = document.querySelector('.product-price');
-      if (priceElement) {
-        const price = new Intl.NumberFormat('{{ shop.locale }}', {
-          style: 'currency',
-          currency: '{{ shop.currency }}'
-        }).format(matchingVariant.price / 100);
+  function updateVariantData(variant) {
+    // Update hidden inputs
+    const variantIdInput = document.getElementById('variant-id');
+    if (variantIdInput) {
+      variantIdInput.value = variant.id;
+    }
 
-        if (matchingVariant.compare_at_price && matchingVariant.compare_at_price > matchingVariant.price) {
-          const comparePrice = new Intl.NumberFormat('{{ shop.locale }}', {
-            style: 'currency',
-            currency: '{{ shop.currency }}'
-          }).format(matchingVariant.compare_at_price / 100);
-          
-          priceElement.innerHTML = `<span class="price-on-sale">${price}</span><span class="compare-price">${comparePrice}</span>`;
-        } else {
-          priceElement.innerHTML = `<span class="price">${price}</span>`;
-        }
-      }
+    // Update price display
+    updatePriceDisplay(variant);
+    
+    // Update availability
+    updateAvailability(variant);
+    
+    // Update option availability
+    updateOptionAvailability();
+    
+    // Update URL without refresh
+    updateURL(variant);
+    
+    // Trigger custom event for other scripts
+    document.dispatchEvent(new CustomEvent('variant:changed', {
+      detail: { variant: variant }
+    }));
+  }
 
-      // Update availability
-      const addToCartBtn = document.querySelector('.add-to-cart-btn');
+  function updatePriceDisplay(variant) {
+    const priceContainer = document.querySelector('.product-price');
+    
+    if (!priceContainer) return;
+
+    // Try to use native browser Intl.NumberFormat for better currency formatting
+    let price, comparePrice;
+    
+    try {
+      const formatter = new Intl.NumberFormat('{{ request.locale.iso_code | default: "en" }}', {
+        style: 'currency',
+        currency: productData.currency || 'USD',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 2
+      });
+      
+      price = formatter.format(variant.price / 100);
+      comparePrice = variant.compare_at_price ? formatter.format(variant.compare_at_price / 100) : null;
+    } catch (e) {
+      // Fallback to custom formatting if Intl fails
+      price = formatMoney(variant.price);
+      comparePrice = variant.compare_at_price ? formatMoney(variant.compare_at_price) : null;
+    }
+    
+    const hasComparePrice = variant.compare_at_price && variant.compare_at_price > variant.price;
+    
+    if (hasComparePrice) {
+      priceContainer.innerHTML = `
+        <span class="price-on-sale" data-price-display>${price}</span>
+        <span class="compare-price" data-compare-price-display>${comparePrice}</span>
+      `;
+    } else {
+      priceContainer.innerHTML = `
+        <span class="price" data-price-display>${price}</span>
+      `;
+    }
+    
+    // Update data attributes
+    priceContainer.setAttribute('data-price', variant.price);
+    priceContainer.setAttribute('data-compare-price', variant.compare_at_price || '');
+  }
+
+  function updateAvailability(variant) {
+    const addToCartBtn = document.getElementById('add-to-cart-button');
+    const availabilityStatus = document.getElementById('availability-status');
+    const dynamicCheckout = document.getElementById('dynamic-checkout-wrapper');
+    const addToCartText = addToCartBtn ? addToCartBtn.getAttribute('data-add-to-cart-text') || 'Add to Cart' : 'Add to Cart';
+    
+    if (variant.available) {
+      // In stock
       if (addToCartBtn) {
-        if (matchingVariant.available) {
-          addToCartBtn.disabled = false;
-          addToCartBtn.textContent = addToCartBtn.getAttribute('data-add-to-cart-text') || 'Add to Cart';
-        } else {
-          addToCartBtn.disabled = true;
-          addToCartBtn.textContent = 'Sold Out';
-        }
+        addToCartBtn.disabled = false;
+        addToCartBtn.textContent = addToCartText;
+        addToCartBtn.classList.remove('sold-out');
+      }
+      
+      if (availabilityStatus) {
+        availabilityStatus.innerHTML = '<span class="in-stock">✓ In Stock</span>';
+      }
+      
+      if (dynamicCheckout) {
+        dynamicCheckout.style.display = 'block';
+      }
+    } else {
+      // Out of stock
+      if (addToCartBtn) {
+        addToCartBtn.disabled = true;
+        addToCartBtn.textContent = 'Sold Out';
+        addToCartBtn.classList.add('sold-out');
+      }
+      
+      if (availabilityStatus) {
+        availabilityStatus.innerHTML = '<span class="out-of-stock">✗ Out of Stock</span>';
+      }
+      
+      if (dynamicCheckout) {
+        dynamicCheckout.style.display = 'none';
       }
     }
   }
 
-  // Quantity input validation
-  document.getElementById('quantity').addEventListener('change', function() {
-    const value = parseInt(this.value);
-    const min = parseInt(this.getAttribute('min')) || 1;
-    const max = parseInt(this.getAttribute('max')) || 10;
+  function updateURL(variant) {
+    const url = new URL(window.location);
+    url.searchParams.set('variant', variant.id);
+    window.history.replaceState({}, '', url);
+  }
+
+  function formatMoney(cents) {
+    if (typeof cents !== 'number') {
+      cents = parseFloat(cents) || 0;
+    }
     
-    if (value < min) this.value = min;
-    if (value > max) this.value = max;
+    const amount = cents / 100;
+    const currency = productData.currency || 'USD';
+    
+    // Use native browser formatting if available
+    try {
+      return new Intl.NumberFormat('en-IN', {
+        style: 'currency',
+        currency: currency === 'Rs' ? 'INR' : currency,
+        minimumFractionDigits: amount % 1 === 0 ? 0 : 2,
+        maximumFractionDigits: 2
+      }).format(amount);
+    } catch (e) {
+      // Fallback formatting
+      const value = amount.toFixed(2);
+      const valueNoDecimals = Math.round(amount);
+      
+      // Get money format from Shopify
+      let format = productData.moneyFormat;
+      
+      // Fallback formats if no format is available  
+      if (!format || typeof format !== 'string') {
+        if (currency === 'INR' || currency === 'Rs') {
+          format = '₹{{amount}}';
+        } else if (currency === 'USD') {
+          format = '${{amount}}';
+        } else {
+          format = currency + ' {{amount}}';
+        }
+      }
+      
+      // Replace placeholders
+      let formattedPrice = format
+        .replace(/\{\{\s*amount_no_decimals\s*\}\}/g, valueNoDecimals.toLocaleString('en-IN'))
+        .replace(/\{\{\s*amount\s*\}\}/g, amount % 1 === 0 ? valueNoDecimals.toLocaleString('en-IN') : value);
+      
+      return formattedPrice.trim();
+    }
+  }
+
+  // Check if variant combination is available
+  function isVariantAvailable(selectedOptions) {
+    return productData.variants.some(variant => {
+      return variant.available && variant.options.every((option, index) => {
+        return !selectedOptions[index] || selectedOptions[index] === option;
+      });
+    });
+  }
+
+  // Update option availability based on current selections
+  function updateOptionAvailability() {
+    const selectedOptions = [];
+    
+    // Get current selections
+    document.querySelectorAll('.variant-group').forEach((group, index) => {
+      const selectedOption = group.querySelector('.variant-option.selected');
+      if (selectedOption) {
+        selectedOptions[index] = selectedOption.getAttribute('data-value');
+      }
+    });
+
+    // Check each option's availability
+    document.querySelectorAll('.variant-group').forEach((group, groupIndex) => {
+      const options = group.querySelectorAll('.variant-option');
+      
+      options.forEach(option => {
+        const testOptions = [...selectedOptions];
+        testOptions[groupIndex] = option.getAttribute('data-value');
+        
+        const isAvailable = isVariantAvailable(testOptions);
+        
+        if (isAvailable) {
+          option.classList.remove('disabled');
+        } else {
+          option.classList.add('disabled');
+        }
+      });
+    });
+  }
+
+  // Initialize everything when DOM is loaded
+  document.addEventListener('DOMContentLoaded', function() {
+    // Initialize variant selection
+    initVariantSelection();
+    
+    // Update option availability on load
+    updateOptionAvailability();
+    
+    // Initialize quantity controls
+    const quantityInput = document.getElementById('quantity');
+    const formQuantity = document.getElementById('form-quantity');
+    
+    if (quantityInput) {
+      // Sync quantity input with form
+      quantityInput.addEventListener('change', function() {
+        const value = parseInt(this.value);
+        const min = parseInt(this.getAttribute('min')) || 1;
+        const max = parseInt(this.getAttribute('max')) || 10;
+        
+        if (value < min) this.value = min;
+        if (value > max) this.value = max;
+        
+        if (formQuantity) formQuantity.value = this.value;
+      });
+      
+      // Set initial form quantity
+      if (formQuantity) formQuantity.value = quantityInput.value;
+    }
+    
+    // Handle form submission
+    const productForm = document.getElementById('product-form');
+    if (productForm) {
+      productForm.addEventListener('submit', function(e) {
+        const variantId = document.getElementById('variant-id')?.value;
+        if (!variantId) {
+          e.preventDefault();
+          alert('Please select a variant');
+          return false;
+        }
+      });
+    }
+    
+    // Check for variant parameter in URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const variantId = urlParams.get('variant');
+    if (variantId) {
+      const variant = productData.variants.find(v => v.id == variantId);
+      if (variant) {
+        // Select the correct options for this variant
+        variant.options.forEach((option, index) => {
+          const optionElement = document.querySelector(`[data-option-position="${index + 1}"] [data-value="${option}"]`);
+          if (optionElement) {
+            optionElement.parentElement.querySelectorAll('.variant-option').forEach(opt => opt.classList.remove('selected'));
+            optionElement.classList.add('selected');
+          }
+        });
+        updateVariantData(variant);
+      }
+    }
   });
 </script>
 

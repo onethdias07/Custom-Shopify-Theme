@@ -1,0 +1,350 @@
+{% comment %}
+  About/Brand Story Section
+  Displays company information, mission, and brand story
+{% endcomment %}
+
+<section class="about-brand section" 
+         style="padding-top: {{ section.settings.section_padding_top }}px; 
+                padding-bottom: {{ section.settings.section_padding_bottom }}px;
+                background-color: {{ section.settings.section_bg_color }};">
+  <div class="container">
+    <div class="about-brand__wrapper">
+      {% if section.settings.layout == 'image-left' %}
+        <div class="about-brand__content about-brand__content--reverse">
+      {% else %}
+        <div class="about-brand__content">
+      {% endif %}
+        
+        <!-- Text Content -->
+        <div class="about-brand__text">
+          {% if section.settings.eyebrow_text != blank %}
+            <span class="about-brand__eyebrow" 
+                  style="color: {{ section.settings.eyebrow_color }};">
+              {{ section.settings.eyebrow_text }}
+            </span>
+          {% endif %}
+          
+          {% if section.settings.heading != blank %}
+            <h2 class="about-brand__heading" 
+                style="color: {{ section.settings.heading_color }};">
+              {{ section.settings.heading }}
+            </h2>
+          {% endif %}
+          
+          {% if section.settings.content != blank %}
+            <div class="about-brand__description" 
+                 style="color: {{ section.settings.text_color }};">
+              {{ section.settings.content }}
+            </div>
+          {% endif %}
+          
+          {% if section.settings.button_text != blank %}
+            <div class="about-brand__actions">
+              <a href="{{ section.settings.button_link | default: '#' }}" 
+                 class="btn btn--primary"
+                 style="background-color: {{ section.settings.button_bg_color }};
+                        color: {{ section.settings.button_text_color }};
+                        padding: {{ section.settings.button_padding_vertical }}px {{ section.settings.button_padding_horizontal }}px;
+                        border-radius: {{ section.settings.button_border_radius }}px;">
+                {{ section.settings.button_text }}
+              </a>
+            </div>
+          {% endif %}
+        </div>
+        
+        <!-- Image -->
+        {% if section.settings.image != blank %}
+          <div class="about-brand__image">
+            <img src="{{ section.settings.image | image_url }}" 
+                 alt="{{ section.settings.image.alt | default: section.settings.heading }}"
+                 style="border-radius: {{ section.settings.image_border_radius }}px;">
+          </div>
+        {% endif %}
+        
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .about-brand {
+    overflow: hidden;
+  }
+  
+  .about-brand__wrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+  
+  .about-brand__content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: center;
+    min-height: 400px;
+  }
+  
+  .about-brand__content--reverse {
+    grid-template-columns: 1fr 1fr;
+  }
+  
+  .about-brand__content--reverse .about-brand__text {
+    order: 2;
+  }
+  
+  .about-brand__content--reverse .about-brand__image {
+    order: 1;
+  }
+  
+  .about-brand__eyebrow {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 16px;
+  }
+  
+  .about-brand__heading {
+    font-size: 2.5rem;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 24px;
+  }
+  
+  .about-brand__description {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 32px;
+  }
+  
+  .about-brand__description p {
+    margin-bottom: 16px;
+  }
+  
+  .about-brand__image img {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+  }
+  
+  .about-brand__actions {
+    margin-top: 32px;
+  }
+  
+  .btn {
+    display: inline-block;
+    text-decoration: none;
+    text-align: center;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: none;
+  }
+  
+  .btn--primary:hover {
+    opacity: 0.9;
+    transform: translateY(-2px);
+  }
+  
+  /* Mobile Responsive */
+  @media (max-width: 768px) {
+    .about-brand__content,
+    .about-brand__content--reverse {
+      grid-template-columns: 1fr;
+      gap: 40px;
+      text-align: center;
+    }
+    
+    .about-brand__content--reverse .about-brand__text,
+    .about-brand__content--reverse .about-brand__image {
+      order: unset;
+    }
+    
+    .about-brand__heading {
+      font-size: 2rem;
+    }
+    
+    .about-brand__wrapper {
+      padding: 0 16px;
+    }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "About Brand",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "text",
+      "id": "eyebrow_text",
+      "label": "Eyebrow text",
+      "default": "Our Story"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Crafting Quality Since Day One"
+    },
+    {
+      "type": "richtext",
+      "id": "content",
+      "label": "Description",
+      "default": "<p>We believe in creating products that stand the test of time. Our commitment to quality, sustainability, and customer satisfaction drives everything we do.</p><p>From our humble beginnings to becoming a trusted brand, we've never compromised on our values of excellence and innovation.</p>"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Image"
+    },
+    {
+      "type": "range",
+      "id": "image_border_radius",
+      "min": 0,
+      "max": 50,
+      "step": 2,
+      "unit": "px",
+      "label": "Image border radius",
+      "default": 8
+    },
+    {
+      "type": "select",
+      "id": "layout",
+      "label": "Layout",
+      "options": [
+        {
+          "value": "image-right",
+          "label": "Image on right"
+        },
+        {
+          "value": "image-left",
+          "label": "Image on left"
+        }
+      ],
+      "default": "image-right"
+    },
+    {
+      "type": "header",
+      "content": "Button"
+    },
+    {
+      "type": "text",
+      "id": "button_text",
+      "label": "Button text",
+      "default": "Learn More"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Button link"
+    },
+    {
+      "type": "range",
+      "id": "button_padding_vertical",
+      "min": 8,
+      "max": 32,
+      "step": 2,
+      "unit": "px",
+      "label": "Button vertical padding",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "button_padding_horizontal",
+      "min": 16,
+      "max": 64,
+      "step": 4,
+      "unit": "px",
+      "label": "Button horizontal padding",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "button_border_radius",
+      "min": 0,
+      "max": 50,
+      "step": 2,
+      "unit": "px",
+      "label": "Button border radius",
+      "default": 4
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "section_bg_color",
+      "label": "Section background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "eyebrow_color",
+      "label": "Eyebrow text color",
+      "default": "#666666"
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "Heading color",
+      "default": "#2c2c2c"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#666666"
+    },
+    {
+      "type": "color",
+      "id": "button_bg_color",
+      "label": "Button background",
+      "default": "#2c2c2c"
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "Button text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "Section Spacing"
+    },
+    {
+      "type": "range",
+      "id": "section_padding_top",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "Top padding",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "section_padding_bottom",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "Bottom padding",
+      "default": 80
+    }
+  ],
+  "presets": [
+    {
+      "name": "About Brand"
+    }
+  ]
+}
+{% endschema %}

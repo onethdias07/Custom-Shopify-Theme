@@ -1,0 +1,204 @@
+{% comment %}
+  Simple Testimonials Section
+{% endcomment %}
+
+<section class="testimonials-section" 
+         style="padding: {{ section.settings.section_padding_top | default: 60 }}px 0 {{ section.settings.section_padding_bottom | default: 60 }}px;">
+  <div class="container">
+    {% if section.settings.heading != blank %}
+      <div class="section-header text-center" style="margin-bottom: 40px;">
+        <h2 style="margin-bottom: 16px;">{{ section.settings.heading }}</h2>
+        {% if section.settings.subheading != blank %}
+          <p>{{ section.settings.subheading }}</p>
+        {% endif %}
+      </div>
+    {% endif %}
+    
+    {% if section.blocks.size > 0 %}
+      <div class="testimonials-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px;">
+        {% for block in section.blocks %}
+          {% case block.type %}
+            {% when 'testimonial' %}
+              <div class="testimonial-card" {{ block.shopify_attributes }} 
+                   style="background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                {% if block.settings.quote != blank %}
+                  <div class="quote" style="font-size: 16px; line-height: 1.6; margin-bottom: 20px; font-style: italic;">
+                    "{{ block.settings.quote }}"
+                  </div>
+                {% endif %}
+                
+                {% if block.settings.rating and block.settings.rating > 0 %}
+                  <div class="rating" style="margin-bottom: 15px;">
+                    {% for i in (1..5) %}
+                      {% if i <= block.settings.rating %}
+                        <span style="color: #ffc107;">★</span>
+                      {% else %}
+                        <span style="color: #e0e0e0;">★</span>
+                      {% endif %}
+                    {% endfor %}
+                  </div>
+                {% endif %}
+                
+                <div class="customer-info">
+                  {% if block.settings.customer_name != blank %}
+                    <div class="name" style="font-weight: 600; margin-bottom: 4px;">
+                      {{ block.settings.customer_name }}
+                    </div>
+                  {% endif %}
+                  {% if block.settings.customer_title != blank %}
+                    <div class="title" style="color: #666; font-size: 14px;">
+                      {{ block.settings.customer_title }}
+                    </div>
+                  {% endif %}
+                </div>
+              </div>
+          {% endcase %}
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+</section>
+
+<style>
+  .testimonials-section {
+    background-color: {{ section.settings.bg_color | default: '#f8f9fa' }};
+  }
+  
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+  
+  .text-center {
+    text-align: center;
+  }
+  
+  @media (max-width: 768px) {
+    .testimonials-grid {
+      grid-template-columns: 1fr !important;
+    }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Testimonials",
+  "tag": "section",
+  "class": "testimonials-section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "What Our Customers Say"
+    },
+    {
+      "type": "textarea",
+      "id": "subheading",
+      "label": "Subheading"
+    },
+    {
+      "type": "header",
+      "content": "Styling"
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Background Color",
+      "default": "#f8f9fa"
+    },
+    {
+      "type": "range",
+      "id": "section_padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 10,
+      "label": "Top padding",
+      "default": 60
+    },
+    {
+      "type": "range",
+      "id": "section_padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 10,
+      "label": "Bottom padding",
+      "default": 60
+    }
+  ],
+  "blocks": [
+    {
+      "type": "testimonial",
+      "name": "Testimonial",
+      "settings": [
+        {
+          "type": "textarea",
+          "id": "quote",
+          "label": "Quote",
+          "default": "This product exceeded my expectations!"
+        },
+        {
+          "type": "text",
+          "id": "customer_name",
+          "label": "Customer Name",
+          "default": "John Smith"
+        },
+        {
+          "type": "text",
+          "id": "customer_title",
+          "label": "Customer Title/Location",
+          "default": "Verified Customer"
+        },
+        {
+          "type": "range",
+          "id": "rating",
+          "min": 1,
+          "max": 5,
+          "step": 1,
+          "label": "Star Rating",
+          "default": 5
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Testimonials",
+      "blocks": [
+        {
+          "type": "testimonial",
+          "settings": {
+            "quote": "Amazing quality and fast shipping. I couldn't be happier with my purchase!",
+            "customer_name": "Sarah Johnson",
+            "customer_title": "Verified Customer",
+            "rating": 5
+          }
+        },
+        {
+          "type": "testimonial",
+          "settings": {
+            "quote": "Excellent customer service and top-notch products. Highly recommend!",
+            "customer_name": "Mike Davis",
+            "customer_title": "Repeat Customer", 
+            "rating": 5
+          }
+        },
+        {
+          "type": "testimonial",
+          "settings": {
+            "quote": "The product exceeded my expectations. Great value for money!",
+            "customer_name": "Emma Wilson",
+            "customer_title": "New York, NY",
+            "rating": 4
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

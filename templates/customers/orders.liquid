@@ -1,0 +1,1172 @@
+{% comment %}
+Order History Page
+{% endcomment %}
+
+<div class="orders-page-container">
+  <div class="orders-header">
+    <div class="header-content">
+      <div class="header-text">
+        <h1 class="orders-title">Order History</h1>
+        <p class="orders-subtitle">Track and manage all your orders</p>
+      </div>
+      <div class="header-actions">
+        <a href="{{ routes.account_url }}" class="btn-secondary">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M19 12H5" stroke="currentColor" stroke-width="2"/>
+            <path d="M12 19l-7-7 7-7" stroke="currentColor" stroke-width="2"/>
+          </svg>
+          Back to Account
+        </a>
+        <a href="{{ routes.all_products_collection_url }}" class="btn-primary">Continue Shopping</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="orders-content">
+    {% if customer.orders_count > 0 %}
+      <!-- Order Filters -->
+      <div class="order-filters">
+        <div class="filter-group">
+          <label for="status-filter">Filter by Status:</label>
+          <select id="status-filter" class="filter-select">
+            <option value="all">All Orders</option>
+            <option value="pending">Pending</option>
+            <option value="fulfilled">Fulfilled</option>
+            <option value="shipped">Shipped</option>
+            <option value="delivered">Delivered</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <label for="time-filter">Time Period:</label>
+          <select id="time-filter" class="filter-select">
+            <option value="all">All Time</option>
+            <option value="last-30">Last 30 Days</option>
+            <option value="last-90">Last 3 Months</option>
+            <option value="last-year">Last Year</option>
+          </select>
+        </div>
+
+        <div class="search-group">
+          <label for="order-search">Search Orders:</label>
+          <div class="search-input-wrapper">
+            <input type="text" id="order-search" placeholder="Order number or product name..." class="search-input">
+            <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/>
+              <path d="m21 21-4.35-4.35" stroke="currentColor" stroke-width="2"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Orders List -->
+      <div class="orders-list">
+        {% paginate customer.orders by 10 %}
+          {% for order in customer.orders %}
+            <div class="order-card" 
+                 data-status="{{ order.fulfillment_status | default: 'pending' }}"
+                 data-date="{{ order.created_at | date: '%Y-%m-%d' }}"
+                 data-order-number="{{ order.name | downcase }}"
+                 data-products="{{ order.line_items | map: 'title' | join: ' ' | downcase }}">
+              
+              <!-- Order Header -->
+              <div class="order-header">
+                <div class="order-main-info">
+                  <div class="order-number-date">
+                    <h3 class="order-number">Order #{{ order.name }}</h3>
+                    <p class="order-date">{{ order.created_at | date: "%B %d, %Y at %I:%M %p" }}</p>
+                  </div>
+                  <div class="order-status-total">
+                    <span class="status-badge status-{{ order.fulfillment_status | default: 'pending' }}">
+                      {{ order.fulfillment_status | default: 'Pending' | capitalize }}
+                    </span>
+                    <div class="order-total">
+                      <span class="total-label">Total:</span>
+                      <span class="total-amount">{{ order.total_price | money }}</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="order-actions">
+                  <button class="toggle-details-btn" data-order-id="{{ order.id }}">
+                    <span class="toggle-text">View Details</span>
+                    <svg class="toggle-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Order Summary (Always Visible) -->
+              <div class="order-summary">
+                <div class="summary-items">
+                  {% for line_item in order.line_items limit: 2 %}
+                    <div class="summary-item">
+                      {% if line_item.image %}
+                        <img src="{{ line_item.image | img_url: '50x50' }}" alt="{{ line_item.title }}" class="item-image">
+                      {% else %}
+                        <div class="item-placeholder">
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2" stroke="currentColor" stroke-width="2"/>
+                            <circle cx="8.5" cy="8.5" r="1.5" stroke="currentColor" stroke-width="2"/>
+                            <polyline points="21,15 16,10 5,21" stroke="currentColor" stroke-width="2"/>
+                          </svg>
+                        </div>
+                      {% endif %}
+                      <div class="item-info">
+                        <div class="item-title">{{ line_item.title }}</div>
+                        <div class="item-details">Qty: {{ line_item.quantity }} × {{ line_item.final_price | money }}</div>
+                      </div>
+                    </div>
+                  {% endfor %}
+                  
+                  {% if order.line_items.size > 2 %}
+                    <div class="more-items">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="12" cy="12" r="1" fill="currentColor"/>
+                        <circle cx="19" cy="12" r="1" fill="currentColor"/>
+                        <circle cx="5" cy="12" r="1" fill="currentColor"/>
+                      </svg>
+                      {{ order.line_items.size | minus: 2 }} more items
+                    </div>
+                  {% endif %}
+                </div>
+              </div>
+
+              <!-- Order Details (Expandable) -->
+              <div class="order-details" id="details-{{ order.id }}" style="display: none;">
+                
+                <!-- Shipping & Billing Information -->
+                <div class="details-sections">
+                  <div class="details-section">
+                    <h4>Shipping Information</h4>
+                    {% if order.shipping_address %}
+                      <div class="address-info">
+                        <div class="address-name">{{ order.shipping_address.first_name }} {{ order.shipping_address.last_name }}</div>
+                        <div class="address-details">
+                          {{ order.shipping_address.address1 }}
+                          {% if order.shipping_address.address2 != blank %}
+                            <br>{{ order.shipping_address.address2 }}
+                          {% endif %}
+                          <br>{{ order.shipping_address.city }}, {{ order.shipping_address.province }} {{ order.shipping_address.zip }}
+                          <br>{{ order.shipping_address.country }}
+                        </div>
+                        {% if order.shipping_address.phone != blank %}
+                          <div class="address-phone">{{ order.shipping_address.phone }}</div>
+                        {% endif %}
+                      </div>
+                    {% else %}
+                      <p class="no-info">No shipping address available</p>
+                    {% endif %}
+                  </div>
+
+                  <div class="details-section">
+                    <h4>Billing Information</h4>
+                    {% if order.billing_address %}
+                      <div class="address-info">
+                        <div class="address-name">{{ order.billing_address.first_name }} {{ order.billing_address.last_name }}</div>
+                        <div class="address-details">
+                          {{ order.billing_address.address1 }}
+                          {% if order.billing_address.address2 != blank %}
+                            <br>{{ order.billing_address.address2 }}
+                          {% endif %}
+                          <br>{{ order.billing_address.city }}, {{ order.billing_address.province }} {{ order.billing_address.zip }}
+                          <br>{{ order.billing_address.country }}
+                        </div>
+                      </div>
+                    {% else %}
+                      <p class="no-info">Same as shipping address</p>
+                    {% endif %}
+                  </div>
+
+                  <div class="details-section">
+                    <h4>Order Summary</h4>
+                    <div class="order-totals">
+                      <div class="total-line">
+                        <span>Subtotal:</span>
+                        <span>{{ order.line_items_subtotal_price | money }}</span>
+                      </div>
+                      {% for discount in order.discounts %}
+                        <div class="total-line discount">
+                          <span>{{ discount.title }}:</span>
+                          <span>-{{ discount.amount | money }}</span>
+                        </div>
+                      {% endfor %}
+                      {% if order.total_duties %}
+                        <div class="total-line">
+                          <span>Duties:</span>
+                          <span>{{ order.total_duties | money }}</span>
+                        </div>
+                      {% endif %}
+                      <div class="total-line">
+                        <span>Shipping:</span>
+                        <span>{{ order.shipping_price | money }}</span>
+                      </div>
+                      <div class="total-line">
+                        <span>Tax:</span>
+                        <span>{{ order.tax_price | money }}</span>
+                      </div>
+                      <div class="total-line total">
+                        <span>Total:</span>
+                        <span>{{ order.total_price | money }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- All Order Items -->
+                <div class="all-items-section">
+                  <h4>All Items ({{ order.line_items.size }})</h4>
+                  <div class="all-items-list">
+                    {% for line_item in order.line_items %}
+                      <div class="detail-item">
+                        {% if line_item.image %}
+                          <img src="{{ line_item.image | img_url: '80x80' }}" alt="{{ line_item.title }}" class="detail-item-image">
+                        {% else %}
+                          <div class="detail-item-placeholder">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <rect x="3" y="3" width="18" height="18" rx="2" ry="2" stroke="currentColor" stroke-width="2"/>
+                              <circle cx="8.5" cy="8.5" r="1.5" stroke="currentColor" stroke-width="2"/>
+                              <polyline points="21,15 16,10 5,21" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                          </div>
+                        {% endif %}
+                        
+                        <div class="detail-item-info">
+                          <div class="detail-item-title">{{ line_item.title }}</div>
+                          <div class="detail-item-variant">
+                            {% unless line_item.variant_title contains 'Default' %}
+                              {{ line_item.variant_title }}
+                            {% endunless %}
+                          </div>
+                          <div class="detail-item-sku">
+                            {% if line_item.sku != blank %}
+                              SKU: {{ line_item.sku }}
+                            {% endif %}
+                          </div>
+                        </div>
+                        
+                        <div class="detail-item-quantity">
+                          <span class="quantity-label">Qty:</span>
+                          <span class="quantity-value">{{ line_item.quantity }}</span>
+                        </div>
+                        
+                        <div class="detail-item-price">
+                          <div class="unit-price">{{ line_item.final_price | money }} each</div>
+                          <div class="line-total">{{ line_item.final_line_price | money }}</div>
+                        </div>
+                        
+                        <div class="item-actions">
+                          {% if line_item.product.available %}
+                            <button class="btn-small reorder-item-btn" data-variant-id="{{ line_item.variant_id }}">
+                              Reorder
+                            </button>
+                          {% endif %}
+                          {% if line_item.product %}
+                            <a href="{{ line_item.product.url }}" class="btn-small-secondary">View Product</a>
+                          {% endif %}
+                        </div>
+                      </div>
+                    {% endfor %}
+                  </div>
+                </div>
+
+                <!-- Order Actions -->
+                <div class="order-detail-actions">
+                  <a href="{{ order.customer_url }}" class="btn-secondary">View Full Order Details</a>
+                  {% if order.fulfillment_status == 'fulfilled' %}
+                    <button class="btn-primary reorder-all-btn" data-order-id="{{ order.id }}">Reorder All Items</button>
+                  {% endif %}
+                  {% if order.cancel_reason or order.cancelled_at %}
+                    <span class="cancel-info">Cancelled: {{ order.cancel_reason | default: 'No reason provided' }}</span>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+
+          <!-- Pagination -->
+          {% if paginate.pages > 1 %}
+            <div class="pagination-wrapper">
+              <nav class="pagination">
+                {% if paginate.previous %}
+                  <a href="{{ paginate.previous.url }}" class="pagination-link prev">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                    Previous
+                  </a>
+                {% endif %}
+
+                <div class="pagination-info">
+                  Page {{ paginate.current_page }} of {{ paginate.pages }} 
+                  <span class="total-orders">({{ customer.orders_count }} total orders)</span>
+                </div>
+
+                {% if paginate.next %}
+                  <a href="{{ paginate.next.url }}" class="pagination-link next">
+                    Next
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                  </a>
+                {% endif %}
+              </nav>
+            </div>
+          {% endif %}
+        {% endpaginate %}
+      </div>
+    {% else %}
+      <!-- Empty State -->
+      <div class="empty-orders-state">
+        <div class="empty-content">
+          <svg width="80" height="80" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="9" cy="21" r="1" stroke="currentColor" stroke-width="1.5"/>
+            <circle cx="20" cy="21" r="1" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" stroke="currentColor" stroke-width="1.5"/>
+          </svg>
+          <h2>No Orders Yet</h2>
+          <p>You haven't placed any orders with us yet. Ready to start shopping?</p>
+          <div class="empty-actions">
+            <a href="{{ routes.all_products_collection_url }}" class="btn-primary">Start Shopping</a>
+            <a href="{{ routes.account_url }}" class="btn-secondary">Back to Account</a>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+<style>
+  .orders-page-container {
+    max-width: var(--container-max-width);
+    margin: 0 auto;
+    padding: var(--section-vertical-spacing) 40px;
+  }
+
+  .orders-header {
+    margin-bottom: 40px;
+  }
+
+  .header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .orders-title {
+    font-size: 2.5rem;
+    color: var(--color-primary);
+    margin: 0 0 8px 0;
+    font-weight: 600;
+  }
+
+  .orders-subtitle {
+    color: var(--color-secondary);
+    margin: 0;
+    font-size: 1.1rem;
+  }
+
+  .header-actions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .btn-primary,
+  .btn-secondary,
+  .btn-small,
+  .btn-small-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: var(--button-border-radius);
+    text-decoration: none;
+    font-weight: 500;
+    transition: all var(--animation-speed) ease;
+    border: 2px solid;
+    cursor: pointer;
+    font-size: 14px;
+  }
+
+  .btn-primary {
+    background: var(--color-primary);
+    color: white;
+    border-color: var(--color-primary);
+  }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--color-primary);
+    border-color: var(--color-primary);
+  }
+
+  .btn-small,
+  .btn-small-secondary {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+
+  .btn-small {
+    background: var(--color-primary);
+    color: white;
+    border-color: var(--color-primary);
+  }
+
+  .btn-small-secondary {
+    background: transparent;
+    color: var(--color-primary);
+    border-color: var(--color-primary);
+  }
+
+  .btn-primary:hover,
+  .btn-small:hover {
+    opacity: 0.9;
+    text-decoration: none;
+  }
+
+  .btn-secondary:hover,
+  .btn-small-secondary:hover {
+    background: var(--color-primary);
+    color: white;
+    text-decoration: none;
+  }
+
+  /* Order Filters */
+  .order-filters {
+    display: grid;
+    grid-template-columns: auto auto 1fr;
+    gap: 24px;
+    align-items: end;
+    margin-bottom: 32px;
+    padding: 24px;
+    background: var(--color-background-secondary);
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  }
+
+  .filter-group,
+  .search-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .filter-group label,
+  .search-group label {
+    font-weight: 500;
+    color: var(--color-primary);
+    font-size: 14px;
+  }
+
+  .filter-select,
+  .search-input {
+    padding: 8px 12px;
+    border: 2px solid #e8e8e8;
+    border-radius: var(--button-border-radius);
+    font-size: 14px;
+    transition: border-color var(--animation-speed) ease;
+  }
+
+  .filter-select:focus,
+  .search-input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+  }
+
+  .search-input-wrapper {
+    position: relative;
+  }
+
+  .search-input {
+    padding-right: 40px;
+    width: 100%;
+    min-width: 250px;
+  }
+
+  .search-icon {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--color-secondary);
+  }
+
+  /* Order Cards */
+  .orders-list {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .order-card {
+    background: var(--color-background-secondary);
+    border-radius: 16px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    overflow: hidden;
+    transition: box-shadow var(--animation-speed) ease;
+  }
+
+  .order-card:hover {
+    box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+  }
+
+  .order-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px;
+    border-bottom: 1px solid #e8e8e8;
+  }
+
+  .order-main-info {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+  }
+
+  .order-number {
+    font-size: 1.2rem;
+    color: var(--color-primary);
+    margin: 0 0 4px 0;
+    font-weight: 600;
+  }
+
+  .order-date {
+    color: var(--color-secondary);
+    margin: 0;
+    font-size: 14px;
+  }
+
+  .order-status-total {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .status-badge {
+    padding: 6px 12px;
+    border-radius: 16px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .status-pending {
+    background: #fef3c7;
+    color: #92400e;
+  }
+
+  .status-fulfilled {
+    background: #d1fae5;
+    color: #065f46;
+  }
+
+  .status-shipped {
+    background: #dbeafe;
+    color: #1e40af;
+  }
+
+  .status-delivered {
+    background: #d1fae5;
+    color: #065f46;
+  }
+
+  .status-cancelled {
+    background: #fee2e2;
+    color: #991b1b;
+  }
+
+  .order-total {
+    text-align: right;
+  }
+
+  .total-label {
+    display: block;
+    font-size: 12px;
+    color: var(--color-secondary);
+    margin-bottom: 2px;
+  }
+
+  .total-amount {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--color-primary);
+  }
+
+  .toggle-details-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: transparent;
+    border: none;
+    color: var(--color-primary);
+    cursor: pointer;
+    font-weight: 500;
+    transition: all var(--animation-speed) ease;
+    padding: 8px 12px;
+    border-radius: var(--button-border-radius);
+  }
+
+  .toggle-details-btn:hover {
+    background: var(--color-primary);
+    color: white;
+  }
+
+  .toggle-icon {
+    transition: transform var(--animation-speed) ease;
+  }
+
+  .toggle-details-btn.active .toggle-icon {
+    transform: rotate(180deg);
+  }
+
+  /* Order Summary */
+  .order-summary {
+    padding: 20px 24px;
+    background: #fafbfc;
+  }
+
+  .summary-items {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .summary-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .item-image {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 8px;
+  }
+
+  .item-placeholder {
+    width: 50px;
+    height: 50px;
+    background: #f0f0f0;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-secondary);
+  }
+
+  .item-info {
+    min-width: 0;
+  }
+
+  .item-title {
+    font-weight: 500;
+    color: var(--color-primary);
+    font-size: 14px;
+    margin-bottom: 2px;
+  }
+
+  .item-details {
+    color: var(--color-secondary);
+    font-size: 12px;
+  }
+
+  .more-items {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--color-secondary);
+    font-size: 14px;
+    font-weight: 500;
+    margin-left: auto;
+  }
+
+  /* Order Details */
+  .order-details {
+    padding: 24px;
+    border-top: 1px solid #e8e8e8;
+    background: white;
+  }
+
+  .details-sections {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 32px;
+    margin-bottom: 32px;
+  }
+
+  .details-section h4 {
+    color: var(--color-primary);
+    font-size: 1rem;
+    margin: 0 0 12px 0;
+    font-weight: 600;
+  }
+
+  .address-info {
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .address-name {
+    font-weight: 600;
+    color: var(--color-primary);
+    margin-bottom: 4px;
+  }
+
+  .address-details {
+    color: var(--color-secondary);
+    margin-bottom: 8px;
+  }
+
+  .address-phone {
+    color: var(--color-primary);
+    font-weight: 500;
+  }
+
+  .no-info {
+    color: var(--color-secondary);
+    font-style: italic;
+    margin: 0;
+  }
+
+  .order-totals {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .total-line {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+  }
+
+  .total-line.discount {
+    color: var(--color-success);
+  }
+
+  .total-line.total {
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--color-primary);
+    border-top: 1px solid #e8e8e8;
+    padding-top: 8px;
+    margin-top: 4px;
+  }
+
+  /* All Items Section */
+  .all-items-section h4 {
+    color: var(--color-primary);
+    font-size: 1rem;
+    margin: 0 0 16px 0;
+    font-weight: 600;
+  }
+
+  .all-items-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .detail-item {
+    display: grid;
+    grid-template-columns: 80px 1fr auto auto auto;
+    gap: 16px;
+    align-items: center;
+    padding: 16px;
+    background: #fafbfc;
+    border-radius: 12px;
+  }
+
+  .detail-item-image {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 8px;
+  }
+
+  .detail-item-placeholder {
+    width: 80px;
+    height: 80px;
+    background: #f0f0f0;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-secondary);
+  }
+
+  .detail-item-title {
+    font-weight: 600;
+    color: var(--color-primary);
+    margin-bottom: 4px;
+  }
+
+  .detail-item-variant {
+    color: var(--color-secondary);
+    font-size: 14px;
+    margin-bottom: 2px;
+  }
+
+  .detail-item-sku {
+    color: var(--color-secondary);
+    font-size: 12px;
+  }
+
+  .detail-item-quantity {
+    text-align: center;
+  }
+
+  .quantity-label {
+    display: block;
+    font-size: 12px;
+    color: var(--color-secondary);
+    margin-bottom: 2px;
+  }
+
+  .quantity-value {
+    font-weight: 600;
+    color: var(--color-primary);
+  }
+
+  .detail-item-price {
+    text-align: right;
+  }
+
+  .unit-price {
+    font-size: 12px;
+    color: var(--color-secondary);
+    margin-bottom: 2px;
+  }
+
+  .line-total {
+    font-weight: 600;
+    color: var(--color-primary);
+  }
+
+  .item-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  /* Order Detail Actions */
+  .order-detail-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    align-items: center;
+    padding-top: 20px;
+    border-top: 1px solid #e8e8e8;
+  }
+
+  .cancel-info {
+    color: var(--color-error);
+    font-style: italic;
+    font-size: 14px;
+    margin-right: auto;
+  }
+
+  /* Pagination */
+  .pagination-wrapper {
+    margin-top: 40px;
+    display: flex;
+    justify-content: center;
+  }
+
+  .pagination {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    padding: 20px;
+    background: var(--color-background-secondary);
+    border-radius: 12px;
+  }
+
+  .pagination-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: var(--color-primary);
+    color: white;
+    text-decoration: none;
+    border-radius: var(--button-border-radius);
+    font-weight: 500;
+    transition: opacity var(--animation-speed) ease;
+  }
+
+  .pagination-link:hover {
+    opacity: 0.9;
+    text-decoration: none;
+  }
+
+  .pagination-info {
+    font-weight: 500;
+    color: var(--color-primary);
+  }
+
+  .total-orders {
+    color: var(--color-secondary);
+    font-weight: normal;
+  }
+
+  /* Empty State */
+  .empty-orders-state {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 400px;
+  }
+
+  .empty-content {
+    text-align: center;
+    color: var(--color-secondary);
+  }
+
+  .empty-content svg {
+    margin-bottom: 24px;
+    opacity: 0.6;
+  }
+
+  .empty-content h2 {
+    color: var(--color-primary);
+    margin-bottom: 12px;
+  }
+
+  .empty-content p {
+    margin-bottom: 24px;
+    font-size: 1.1rem;
+  }
+
+  .empty-actions {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+  }
+
+  /* Mobile Responsive */
+  @media (max-width: 768px) {
+    .orders-page-container {
+      padding: 40px 20px;
+    }
+
+    .header-content {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 20px;
+    }
+
+    .header-actions {
+      justify-content: center;
+    }
+
+    .orders-title {
+      font-size: 2rem;
+      text-align: center;
+    }
+
+    .orders-subtitle {
+      text-align: center;
+    }
+
+    .order-filters {
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+
+    .search-input {
+      min-width: auto;
+    }
+
+    .order-header {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 16px;
+    }
+
+    .order-main-info {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 12px;
+    }
+
+    .order-status-total {
+      justify-content: space-between;
+    }
+
+    .summary-items {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .details-sections {
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+
+    .detail-item {
+      grid-template-columns: 60px 1fr;
+      gap: 12px;
+    }
+
+    .detail-item-quantity,
+    .detail-item-price,
+    .item-actions {
+      grid-column: 1 / -1;
+      justify-self: start;
+    }
+
+    .item-actions {
+      flex-direction: row;
+    }
+
+    .order-detail-actions {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .cancel-info {
+      margin-right: 0;
+      text-align: center;
+    }
+
+    .pagination {
+      flex-direction: column;
+      gap: 12px;
+    }
+  }
+
+  /* Hidden by default utility */
+  .hidden {
+    display: none !important;
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Toggle order details
+    const toggleButtons = document.querySelectorAll('.toggle-details-btn');
+    
+    toggleButtons.forEach(button => {
+      button.addEventListener('click', function() {
+        const orderId = this.getAttribute('data-order-id');
+        const detailsSection = document.getElementById(`details-${orderId}`);
+        const toggleText = this.querySelector('.toggle-text');
+        
+        if (detailsSection.style.display === 'none') {
+          detailsSection.style.display = 'block';
+          toggleText.textContent = 'Hide Details';
+          this.classList.add('active');
+        } else {
+          detailsSection.style.display = 'none';
+          toggleText.textContent = 'View Details';
+          this.classList.remove('active');
+        }
+      });
+    });
+
+    // Filtering functionality
+    const statusFilter = document.getElementById('status-filter');
+    const timeFilter = document.getElementById('time-filter');
+    const searchInput = document.getElementById('order-search');
+    const orderCards = document.querySelectorAll('.order-card');
+
+    function filterOrders() {
+      const statusValue = statusFilter.value;
+      const timeValue = timeFilter.value;
+      const searchValue = searchInput.value.toLowerCase();
+      
+      const now = new Date();
+      let timeThreshold = null;
+      
+      if (timeValue === 'last-30') {
+        timeThreshold = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+      } else if (timeValue === 'last-90') {
+        timeThreshold = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+      } else if (timeValue === 'last-year') {
+        timeThreshold = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
+      }
+
+      orderCards.forEach(card => {
+        const cardStatus = card.getAttribute('data-status');
+        const cardDate = new Date(card.getAttribute('data-date'));
+        const cardOrderNumber = card.getAttribute('data-order-number');
+        const cardProducts = card.getAttribute('data-products');
+        
+        let showCard = true;
+
+        // Status filter
+        if (statusValue !== 'all' && cardStatus !== statusValue) {
+          showCard = false;
+        }
+
+        // Time filter
+        if (timeThreshold && cardDate < timeThreshold) {
+          showCard = false;
+        }
+
+        // Search filter
+        if (searchValue && !cardOrderNumber.includes(searchValue) && !cardProducts.includes(searchValue)) {
+          showCard = false;
+        }
+
+        card.style.display = showCard ? 'block' : 'none';
+      });
+    }
+
+    if (statusFilter) {
+      statusFilter.addEventListener('change', filterOrders);
+    }
+
+    if (timeFilter) {
+      timeFilter.addEventListener('change', filterOrders);
+    }
+
+    if (searchInput) {
+      let searchTimeout;
+      searchInput.addEventListener('input', function() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(filterOrders, 300);
+      });
+    }
+
+    // Reorder functionality (basic implementation)
+    const reorderButtons = document.querySelectorAll('.reorder-item-btn, .reorder-all-btn');
+    
+    reorderButtons.forEach(button => {
+      button.addEventListener('click', function() {
+        const variantId = this.getAttribute('data-variant-id');
+        const orderId = this.getAttribute('data-order-id');
+        
+        // Basic reorder implementation - you'd need to integrate with Shopify Cart API
+        if (variantId) {
+          // Add single item to cart
+          console.log('Reordering variant:', variantId);
+          // Implementation would go here
+        } else if (orderId) {
+          // Add all items from order to cart
+          console.log('Reordering all items from order:', orderId);
+          // Implementation would go here
+        }
+        
+        // Show feedback to user
+        const originalText = this.textContent;
+        this.textContent = 'Added!';
+        this.disabled = true;
+        
+        setTimeout(() => {
+          this.textContent = originalText;
+          this.disabled = false;
+        }, 2000);
+      });
+    });
+  });
+</script>

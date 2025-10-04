@@ -1,0 +1,1329 @@
+{% comment %}
+Article Template
+Individual blog post page with enhanced features
+{% endcomment %}
+
+<article class="article-container" itemscope itemtype="http://schema.org/BlogPosting">
+  <div class="article-hero">
+    {% if article.image != blank %}
+      <div class="article-hero-image">
+        <img src="{{ article.image | img_url: '1200x600' }}" alt="{{ article.title }}" itemprop="image" loading="eager">
+      </div>
+    {% endif %}
+    
+    <div class="article-hero-content">
+      <div class="container">
+        <div class="article-breadcrumb">
+          <a href="{{ routes.root_url }}">Home</a>
+          <span class="breadcrumb-separator">•</span>
+          <a href="{{ blog.url }}">{{ blog.title }}</a>
+          <span class="breadcrumb-separator">•</span>
+          <span>{{ article.title | truncatewords: 5 }}</span>
+        </div>
+
+        {% if article.tags.size > 0 %}
+          <div class="article-category">
+            <span class="category-tag">{{ article.tags.first }}</span>
+          </div>
+        {% endif %}
+
+        <h1 class="article-title" itemprop="headline">{{ article.title }}</h1>
+
+        <div class="article-meta">
+          <div class="article-author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            {% if article.author != blank %}
+              <div class="author-avatar">
+                <span>{{ article.author | slice: 0 }}</span>
+              </div>
+              <div class="author-info">
+                <span class="author-name" itemprop="name">{{ article.author }}</span>
+                <span class="author-label">Author</span>
+              </div>
+            {% endif %}
+          </div>
+
+          <div class="article-details">
+            <time class="article-date" datetime="{{ article.published_at | date: '%Y-%m-%d' }}" itemprop="datePublished">
+              {{ article.published_at | date: '%B %d, %Y' }}
+            </time>
+            
+            <span class="reading-time">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                <polyline points="12,6 12,12 16,14" stroke="currentColor" stroke-width="2"/>
+              </svg>
+              {{ article.content | strip_html | truncatewords: 200 | size | divided_by: 200 | at_least: 1 }} min read
+            </span>
+
+            {% if article.moderated? and article.comments_count > 0 %}
+              <span class="comment-count">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke="currentColor" stroke-width="2"/>
+                </svg>
+                {{ article.comments_count }} 
+                {{ article.comments_count | pluralize: 'comment', 'comments' }}
+              </span>
+            {% endif %}
+          </div>
+        </div>
+
+        {% comment %} Social Share Buttons {% endcomment %}
+        <div class="article-share">
+          <span class="share-label">Share:</span>
+          <div class="share-buttons">
+            <a href="https://twitter.com/intent/tweet?text={{ article.title | url_encode }}&url={{ shop.url }}{{ article.url }}" 
+               target="_blank" 
+               rel="noopener noreferrer" 
+               class="share-btn share-twitter"
+               aria-label="Share on Twitter">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"/>
+              </svg>
+            </a>
+            
+            <a href="https://www.facebook.com/sharer/sharer.php?u={{ shop.url }}{{ article.url }}" 
+               target="_blank" 
+               rel="noopener noreferrer" 
+               class="share-btn share-facebook"
+               aria-label="Share on Facebook">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
+              </svg>
+            </a>
+            
+            <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ shop.url }}{{ article.url }}" 
+               target="_blank" 
+               rel="noopener noreferrer" 
+               class="share-btn share-linkedin"
+               aria-label="Share on LinkedIn">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/>
+                <rect x="2" y="9" width="4" height="12"/>
+                <circle cx="4" cy="4" r="2"/>
+              </svg>
+            </a>
+            
+            <button class="share-btn share-copy" id="copy-link" aria-label="Copy link">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" stroke="currentColor" stroke-width="2"/>
+                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" stroke="currentColor" stroke-width="2"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="article-content">
+    <div class="container">
+      <div class="article-layout">
+        <main class="article-main">
+          <div class="article-body" itemprop="articleBody">
+            {{ article.content }}
+          </div>
+
+          {% if article.tags.size > 1 %}
+            <div class="article-tags">
+              <h4>Tags:</h4>
+              <div class="tag-list">
+                {% for tag in article.tags %}
+                  <a href="{{ blog.url }}/tagged/{{ tag | handle }}" class="tag-item">{{ tag }}</a>
+                {% endfor %}
+              </div>
+            </div>
+          {% endif %}
+
+          {% comment %} Author Bio {% endcomment %}
+          {% if article.author != blank %}
+            <div class="author-bio">
+              <div class="author-bio-avatar">
+                <span>{{ article.author | slice: 0, 2 }}</span>
+              </div>
+              <div class="author-bio-content">
+                <h4 class="author-bio-name">{{ article.author }}</h4>
+                <p class="author-bio-description">
+                  Content creator and writer passionate about sharing insights and stories that matter.
+                </p>
+                <div class="author-bio-stats">
+                  {% assign author_posts = blog.articles | where: 'author', article.author %}
+                  <span>{{ author_posts.size }} {{ author_posts.size | pluralize: 'post', 'posts' }}</span>
+                </div>
+              </div>
+            </div>
+          {% endif %}
+
+          {% comment %} Navigation to Previous/Next Articles {% endcomment %}
+          <nav class="article-navigation" aria-label="Article navigation">
+            <div class="nav-links">
+              {% if blog.previous_article %}
+                <a href="{{ blog.previous_article.url }}" class="nav-link nav-prev">
+                  <div class="nav-direction">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <polyline points="15,18 9,12 15,6" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                    Previous
+                  </div>
+                  <div class="nav-info">
+                    <span class="nav-title">{{ blog.previous_article.title | truncatewords: 6 }}</span>
+                    <span class="nav-date">{{ blog.previous_article.published_at | date: '%B %d, %Y' }}</span>
+                  </div>
+                </a>
+              {% endif %}
+
+              {% if blog.next_article %}
+                <a href="{{ blog.next_article.url }}" class="nav-link nav-next">
+                  <div class="nav-info">
+                    <span class="nav-title">{{ blog.next_article.title | truncatewords: 6 }}</span>
+                    <span class="nav-date">{{ blog.next_article.published_at | date: '%B %d, %Y' }}</span>
+                  </div>
+                  <div class="nav-direction">
+                    Next
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <polyline points="9,18 15,12 9,6" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                  </div>
+                </a>
+              {% endif %}
+            </div>
+          </nav>
+
+          {% comment %} Related Articles {% endcomment %}
+          {% assign related_articles = blog.articles | where: 'tags', article.tags.first | where_not: 'id', article.id %}
+          {% if related_articles.size > 0 %}
+            <section class="related-articles">
+              <h3>Related Articles</h3>
+              <div class="related-grid">
+                {% for related in related_articles limit: 3 %}
+                  <article class="related-card">
+                    {% if related.image != blank %}
+                      <div class="related-image">
+                        <a href="{{ related.url }}">
+                          <img src="{{ related.image | img_url: '300x200' }}" alt="{{ related.title }}" loading="lazy">
+                        </a>
+                      </div>
+                    {% endif %}
+                    
+                    <div class="related-content">
+                      <h4 class="related-title">
+                        <a href="{{ related.url }}">{{ related.title | truncatewords: 8 }}</a>
+                      </h4>
+                      <time class="related-date">{{ related.published_at | date: '%B %d, %Y' }}</time>
+                    </div>
+                  </article>
+                {% endfor %}
+              </div>
+            </section>
+          {% endif %}
+
+          {% comment %} Comments Section {% endcomment %}
+          {% if blog.moderated? and article.moderated? %}
+            <section class="article-comments" id="comments">
+              <h3>
+                Comments 
+                {% if article.comments_count > 0 %}
+                  ({{ article.comments_count }})
+                {% endif %}
+              </h3>
+
+              {% paginate article.comments by 5 %}
+                {% if article.comments_count > 0 %}
+                  <div class="comments-list">
+                    {% for comment in article.comments %}
+                      <div class="comment" id="comment-{{ comment.id }}">
+                        <div class="comment-avatar">
+                          <span>{{ comment.author | slice: 0 }}</span>
+                        </div>
+                        <div class="comment-content">
+                          <div class="comment-header">
+                            <span class="comment-author">{{ comment.author }}</span>
+                            <time class="comment-date">{{ comment.created_at | date: '%B %d, %Y at %I:%M %p' }}</time>
+                          </div>
+                          <div class="comment-body">{{ comment.content }}</div>
+                        </div>
+                      </div>
+                    {% endfor %}
+                  </div>
+
+                  {% if paginate.pages > 1 %}
+                    <nav class="comments-pagination">
+                      {% if paginate.previous %}
+                        <a href="{{ paginate.previous.url }}#comments" class="pagination-btn">Previous</a>
+                      {% endif %}
+                      {% if paginate.next %}
+                        <a href="{{ paginate.next.url }}#comments" class="pagination-btn">Next</a>
+                      {% endif %}
+                    </nav>
+                  {% endif %}
+                {% endif %}
+              {% endpaginate %}
+
+              {% comment %} Comment Form {% endcomment %}
+              {% form 'new_comment', article %}
+                <div class="comment-form">
+                  <h4>Leave a Comment</h4>
+                  
+                  {% if form.posted_successfully? %}
+                    <div class="form-success">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" stroke="currentColor" stroke-width="2"/>
+                        <polyline points="22,4 12,14.01 9,11.01" stroke="currentColor" stroke-width="2"/>
+                      </svg>
+                      {% if blog.moderated? %}
+                        Your comment has been submitted and is awaiting approval.
+                      {% else %}
+                        Your comment has been posted successfully!
+                      {% endif %}
+                    </div>
+                  {% endif %}
+
+                  {% if form.errors %}
+                    <div class="form-errors">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                        <line x1="15" y1="9" x2="9" y2="15" stroke="currentColor" stroke-width="2"/>
+                        <line x1="9" y1="9" x2="15" y2="15" stroke="currentColor" stroke-width="2"/>
+                      </svg>
+                      {{ form.errors | default_errors }}
+                    </div>
+                  {% endif %}
+
+                  <div class="form-fields">
+                    <div class="field-row">
+                      <div class="form-field">
+                        <label for="comment-author">Name *</label>
+                        <input type="text" 
+                               id="comment-author" 
+                               name="comment[author]" 
+                               value="{{ form.author }}" 
+                               required
+                               placeholder="Your name">
+                      </div>
+                      
+                      <div class="form-field">
+                        <label for="comment-email">Email *</label>
+                        <input type="email" 
+                               id="comment-email" 
+                               name="comment[email]" 
+                               value="{{ form.email }}" 
+                               required
+                               placeholder="your@email.com">
+                      </div>
+                    </div>
+
+                    <div class="form-field">
+                      <label for="comment-url">Website (optional)</label>
+                      <input type="url" 
+                             id="comment-url" 
+                             name="comment[url]" 
+                             value="{{ form.url }}"
+                             placeholder="https://yourwebsite.com">
+                    </div>
+
+                    <div class="form-field">
+                      <label for="comment-body">Comment *</label>
+                      <textarea id="comment-body" 
+                                name="comment[body]" 
+                                required
+                                placeholder="Share your thoughts..."
+                                rows="5">{{ form.body }}</textarea>
+                    </div>
+
+                    <button type="submit" class="submit-comment">
+                      Post Comment
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <line x1="22" y1="2" x2="11" y2="13" stroke="currentColor" stroke-width="2"/>
+                        <polygon points="22,2 15,22 11,13 2,9 22,2" fill="currentColor"/>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              {% endform %}
+            </section>
+          {% endif %}
+        </main>
+
+        <aside class="article-sidebar">
+          {% comment %} Table of Contents {% endcomment %}
+          <div class="sidebar-widget toc-widget">
+            <h4>Table of Contents</h4>
+            <div class="table-of-contents" id="toc">
+              <!-- Generated by JavaScript -->
+            </div>
+          </div>
+
+          {% comment %} Share Sticky {% endcomment %}
+          <div class="sidebar-widget share-widget">
+            <h4>Share this post</h4>
+            <div class="share-buttons-vertical">
+              <a href="https://twitter.com/intent/tweet?text={{ article.title | url_encode }}&url={{ shop.url }}{{ article.url }}" 
+                 target="_blank" class="share-btn-vertical share-twitter">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"/>
+                </svg>
+              </a>
+              <a href="https://www.facebook.com/sharer/sharer.php?u={{ shop.url }}{{ article.url }}" 
+                 target="_blank" class="share-btn-vertical share-facebook">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
+                </svg>
+              </a>
+              <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ shop.url }}{{ article.url }}" 
+                 target="_blank" class="share-btn-vertical share-linkedin">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/>
+                  <rect x="2" y="9" width="4" height="12"/>
+                  <circle cx="4" cy="4" r="2"/>
+                </svg>
+              </a>
+            </div>
+          </div>
+
+          {% comment %} Back to Blog {% endcomment %}
+          <div class="sidebar-widget">
+            <a href="{{ blog.url }}" class="back-to-blog">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <polyline points="15,18 9,12 15,6" stroke="currentColor" stroke-width="2"/>
+              </svg>
+              Back to {{ blog.title }}
+            </a>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </div>
+
+  {% comment %} Structured Data {% endcomment %}
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BlogPosting",
+      "headline": {{ article.title | json }},
+      "image": "{{ article.image | img_url: '1200x630' }}",
+      "author": {
+        "@type": "Person",
+        "name": {{ article.author | json }}
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": {{ shop.name | json }},
+        "logo": {
+          "@type": "ImageObject",
+          "url": "{{ 'logo.png' | asset_url }}"
+        }
+      },
+      "datePublished": "{{ article.published_at | date: '%Y-%m-%d' }}",
+      "dateModified": "{{ article.updated_at | date: '%Y-%m-%d' }}",
+      "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "{{ shop.url }}{{ article.url }}"
+      },
+      "description": {{ article.excerpt | strip_html | truncatewords: 25 | json }}
+    }
+  </script>
+</article>
+
+<style>
+  .article-container {
+    min-height: 60vh;
+  }
+
+  .article-hero {
+    position: relative;
+    background: var(--color-primary, #333);
+    color: white;
+    padding: 40px 0 60px;
+  }
+
+  .article-hero-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+  }
+
+  .article-hero-image::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(180deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.7) 100%);
+    z-index: 2;
+  }
+
+  .article-hero-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .article-hero-content {
+    position: relative;
+    z-index: 3;
+  }
+
+  .article-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 20px;
+    font-size: 14px;
+    opacity: 0.9;
+  }
+
+  .article-breadcrumb a {
+    color: white;
+    text-decoration: none;
+    transition: opacity 0.3s ease;
+  }
+
+  .article-breadcrumb a:hover {
+    opacity: 0.8;
+  }
+
+  .breadcrumb-separator {
+    opacity: 0.6;
+  }
+
+  .article-category {
+    margin-bottom: 16px;
+  }
+
+  .category-tag {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 16px;
+    font-size: 13px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .article-title {
+    font-size: 3rem;
+    font-weight: 700;
+    margin: 0 0 32px 0;
+    line-height: 1.1;
+    max-width: 800px;
+  }
+
+  .article-meta {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 24px;
+    margin-bottom: 32px;
+  }
+
+  .article-author {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .author-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 18px;
+    text-transform: uppercase;
+  }
+
+  .author-info {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .author-name {
+    font-weight: 600;
+    font-size: 16px;
+  }
+
+  .author-label {
+    font-size: 13px;
+    opacity: 0.8;
+  }
+
+  .article-details {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    font-size: 14px;
+  }
+
+  .article-details > * {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .article-share {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .share-label {
+    font-weight: 500;
+    font-size: 14px;
+  }
+
+  .share-buttons {
+    display: flex;
+    gap: 8px;
+  }
+
+  .share-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .share-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+  }
+
+  .share-twitter:hover { background: #1da1f2; }
+  .share-facebook:hover { background: #1877f2; }
+  .share-linkedin:hover { background: #0a66c2; }
+  .share-copy:hover { background: rgba(255, 255, 255, 0.4); }
+
+  .article-content {
+    padding: 60px 0;
+  }
+
+  .article-layout {
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    gap: 60px;
+  }
+
+  .article-main {
+    min-width: 0;
+  }
+
+  .article-body {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: var(--color-primary, #333);
+    margin-bottom: 40px;
+  }
+
+  .article-body h2,
+  .article-body h3,
+  .article-body h4 {
+    margin: 2em 0 1em 0;
+    color: var(--color-primary, #333);
+    font-weight: 600;
+  }
+
+  .article-body h2 {
+    font-size: 1.8rem;
+    padding-bottom: 0.5em;
+    border-bottom: 2px solid #f0f0f0;
+  }
+
+  .article-body h3 {
+    font-size: 1.5rem;
+  }
+
+  .article-body h4 {
+    font-size: 1.3rem;
+  }
+
+  .article-body p {
+    margin: 0 0 1.5em 0;
+  }
+
+  .article-body img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin: 2em 0;
+  }
+
+  .article-body blockquote {
+    border-left: 4px solid var(--color-accent, #007bff);
+    padding-left: 1.5em;
+    margin: 2em 0;
+    font-style: italic;
+    color: var(--color-secondary, #666);
+  }
+
+  .article-body ul,
+  .article-body ol {
+    margin: 1.5em 0;
+    padding-left: 2em;
+  }
+
+  .article-body li {
+    margin-bottom: 0.5em;
+  }
+
+  .article-tags {
+    padding: 32px 0;
+    border-top: 1px solid #e8e8e8;
+    border-bottom: 1px solid #e8e8e8;
+    margin-bottom: 40px;
+  }
+
+  .article-tags h4 {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0 0 16px 0;
+    color: var(--color-primary, #333);
+  }
+
+  .tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .tag-item {
+    background: #f8f9fa;
+    color: var(--color-primary, #333);
+    padding: 8px 16px;
+    border-radius: 16px;
+    text-decoration: none;
+    font-size: 14px;
+    transition: all 0.3s ease;
+  }
+
+  .tag-item:hover {
+    background: var(--color-primary, #333);
+    color: white;
+  }
+
+  .author-bio {
+    background: #f8f9fa;
+    border-radius: 16px;
+    padding: 32px;
+    margin-bottom: 40px;
+    display: flex;
+    gap: 20px;
+  }
+
+  .author-bio-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: var(--color-primary, #333);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 24px;
+    text-transform: uppercase;
+    flex-shrink: 0;
+  }
+
+  .author-bio-content {
+    flex: 1;
+  }
+
+  .author-bio-name {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin: 0 0 8px 0;
+    color: var(--color-primary, #333);
+  }
+
+  .author-bio-description {
+    color: var(--color-secondary, #666);
+    margin: 0 0 16px 0;
+    line-height: 1.6;
+  }
+
+  .author-bio-stats {
+    font-size: 14px;
+    color: var(--color-secondary, #666);
+  }
+
+  .article-navigation {
+    margin-bottom: 60px;
+  }
+
+  .nav-links {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+
+  .nav-link {
+    background: #f8f9fa;
+    border: 1px solid #e8e8e8;
+    border-radius: 16px;
+    padding: 24px;
+    text-decoration: none;
+    color: var(--color-primary, #333);
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .nav-link:hover {
+    border-color: var(--color-accent, #007bff);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  }
+
+  .nav-prev {
+    justify-content: flex-start;
+  }
+
+  .nav-next {
+    justify-content: flex-end;
+    flex-direction: row-reverse;
+  }
+
+  .nav-direction {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--color-accent, #007bff);
+  }
+
+  .nav-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+  }
+
+  .nav-title {
+    font-weight: 600;
+    color: var(--color-primary, #333);
+  }
+
+  .nav-date {
+    font-size: 13px;
+    color: var(--color-secondary, #666);
+  }
+
+  .related-articles {
+    margin-bottom: 60px;
+  }
+
+  .related-articles h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0 0 32px 0;
+    color: var(--color-primary, #333);
+  }
+
+  .related-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+  }
+
+  .related-card {
+    background: white;
+    border: 1px solid #e8e8e8;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+
+  .related-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  }
+
+  .related-image {
+    height: 160px;
+    overflow: hidden;
+  }
+
+  .related-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+
+  .related-card:hover .related-image img {
+    transform: scale(1.05);
+  }
+
+  .related-content {
+    padding: 20px;
+  }
+
+  .related-title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 8px 0;
+    line-height: 1.3;
+  }
+
+  .related-title a {
+    color: var(--color-primary, #333);
+    text-decoration: none;
+    transition: color 0.3s ease;
+  }
+
+  .related-title a:hover {
+    color: var(--color-accent, #007bff);
+  }
+
+  .related-date {
+    font-size: 13px;
+    color: var(--color-secondary, #666);
+  }
+
+  /* Comments */
+  .article-comments {
+    border-top: 1px solid #e8e8e8;
+    padding-top: 60px;
+  }
+
+  .article-comments h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0 0 32px 0;
+    color: var(--color-primary, #333);
+  }
+
+  .comments-list {
+    margin-bottom: 40px;
+  }
+
+  .comment {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 32px;
+    padding-bottom: 32px;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .comment:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+
+  .comment-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--color-primary, #333);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    text-transform: uppercase;
+    flex-shrink: 0;
+  }
+
+  .comment-content {
+    flex: 1;
+  }
+
+  .comment-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+
+  .comment-author {
+    font-weight: 600;
+    color: var(--color-primary, #333);
+  }
+
+  .comment-date {
+    font-size: 13px;
+    color: var(--color-secondary, #666);
+  }
+
+  .comment-body {
+    color: var(--color-primary, #333);
+    line-height: 1.6;
+  }
+
+  .comment-form {
+    background: #f8f9fa;
+    border-radius: 16px;
+    padding: 32px;
+  }
+
+  .comment-form h4 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin: 0 0 24px 0;
+    color: var(--color-primary, #333);
+  }
+
+  .form-success,
+  .form-errors {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 16px;
+    border-radius: 8px;
+    margin-bottom: 24px;
+  }
+
+  .form-success {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+  }
+
+  .form-errors {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+  }
+
+  .form-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  .form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .form-field label {
+    font-weight: 500;
+    color: var(--color-primary, #333);
+    font-size: 14px;
+  }
+
+  .form-field input,
+  .form-field textarea {
+    padding: 12px 16px;
+    border: 1px solid #e8e8e8;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: border-color 0.3s ease;
+  }
+
+  .form-field input:focus,
+  .form-field textarea:focus {
+    outline: none;
+    border-color: var(--color-accent, #007bff);
+  }
+
+  .submit-comment {
+    background: var(--color-primary, #333);
+    color: white;
+    border: none;
+    padding: 14px 24px;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    align-self: flex-start;
+  }
+
+  .submit-comment:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+  }
+
+  /* Sidebar */
+  .article-sidebar {
+    position: sticky;
+    top: 20px;
+    height: fit-content;
+  }
+
+  .sidebar-widget {
+    background: white;
+    border: 1px solid #f0f0f0;
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 24px;
+  }
+
+  .sidebar-widget h4 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0 0 16px 0;
+    color: var(--color-primary, #333);
+  }
+
+  .table-of-contents {
+    font-size: 14px;
+  }
+
+  .table-of-contents a {
+    display: block;
+    color: var(--color-secondary, #666);
+    text-decoration: none;
+    padding: 6px 0;
+    border-left: 2px solid transparent;
+    padding-left: 12px;
+    transition: all 0.3s ease;
+  }
+
+  .table-of-contents a:hover,
+  .table-of-contents a.active {
+    color: var(--color-accent, #007bff);
+    border-left-color: var(--color-accent, #007bff);
+  }
+
+  .share-buttons-vertical {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .share-btn-vertical {
+    width: 100%;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    text-decoration: none;
+    color: white;
+    transition: all 0.3s ease;
+  }
+
+  .share-btn-vertical.share-twitter { background: #1da1f2; }
+  .share-btn-vertical.share-facebook { background: #1877f2; }
+  .share-btn-vertical.share-linkedin { background: #0a66c2; }
+
+  .share-btn-vertical:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+  }
+
+  .back-to-blog {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--color-primary, #333);
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    padding: 12px 0;
+  }
+
+  .back-to-blog:hover {
+    color: var(--color-accent, #007bff);
+    transform: translateX(-2px);
+  }
+
+  /* Mobile Responsive */
+  @media (max-width: 1024px) {
+    .article-layout {
+      grid-template-columns: 1fr;
+      gap: 40px;
+    }
+
+    .article-sidebar {
+      position: static;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .article-title {
+      font-size: 2rem;
+    }
+
+    .article-meta {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .article-share {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .nav-links {
+      grid-template-columns: 1fr;
+    }
+
+    .nav-next {
+      flex-direction: row;
+    }
+
+    .related-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .field-row {
+      grid-template-columns: 1fr;
+    }
+
+    .article-sidebar {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .article-hero {
+      padding: 30px 0 40px;
+    }
+
+    .article-content {
+      padding: 40px 0;
+    }
+
+    .article-body {
+      font-size: 1rem;
+    }
+
+    .author-bio {
+      flex-direction: column;
+      text-align: center;
+    }
+
+    .comment-form {
+      padding: 24px;
+    }
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Copy link functionality
+    const copyBtn = document.getElementById('copy-link');
+    if (copyBtn) {
+      copyBtn.addEventListener('click', async function() {
+        try {
+          await navigator.clipboard.writeText(window.location.href);
+          
+          // Visual feedback
+          const originalHTML = this.innerHTML;
+          this.innerHTML = `
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <polyline points="20,6 9,17 4,12" stroke="currentColor" stroke-width="2"/>
+            </svg>
+          `;
+          
+          setTimeout(() => {
+            this.innerHTML = originalHTML;
+          }, 2000);
+        } catch (err) {
+          console.log('Failed to copy link');
+        }
+      });
+    }
+
+    // Generate Table of Contents
+    const articleBody = document.querySelector('.article-body');
+    const tocContainer = document.getElementById('toc');
+    
+    if (articleBody && tocContainer) {
+      const headings = articleBody.querySelectorAll('h2, h3, h4');
+      
+      if (headings.length > 0) {
+        const tocList = document.createElement('div');
+        
+        headings.forEach((heading, index) => {
+          // Add ID to heading if it doesn't have one
+          if (!heading.id) {
+            heading.id = `heading-${index}`;
+          }
+          
+          const tocItem = document.createElement('a');
+          tocItem.href = `#${heading.id}`;
+          tocItem.textContent = heading.textContent;
+          tocItem.style.paddingLeft = `${(parseInt(heading.tagName.slice(1)) - 1) * 12}px`;
+          
+          // Smooth scroll
+          tocItem.addEventListener('click', function(e) {
+            e.preventDefault();
+            heading.scrollIntoView({ behavior: 'smooth' });
+          });
+          
+          tocList.appendChild(tocItem);
+        });
+        
+        tocContainer.appendChild(tocList);
+
+        // Highlight active section on scroll
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            const tocLink = tocContainer.querySelector(`a[href="#${entry.target.id}"]`);
+            if (tocLink) {
+              if (entry.isIntersecting) {
+                tocContainer.querySelectorAll('a').forEach(link => link.classList.remove('active'));
+                tocLink.classList.add('active');
+              }
+            }
+          });
+        }, {
+          rootMargin: '-20% 0px -70% 0px'
+        });
+
+        headings.forEach(heading => observer.observe(heading));
+      } else {
+        tocContainer.innerHTML = '<p style="color: #999; font-size: 14px;">No headings found</p>';
+      }
+    }
+
+    // Reading progress indicator
+    const progressBar = document.createElement('div');
+    progressBar.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 0%;
+      height: 3px;
+      background: var(--color-accent, #007bff);
+      z-index: 10000;
+      transition: width 0.1s ease;
+    `;
+    document.body.appendChild(progressBar);
+
+    window.addEventListener('scroll', function() {
+      const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+      const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+      const scrolled = (winScroll / height) * 100;
+      progressBar.style.width = scrolled + '%';
+    });
+  });
+</script>

@@ -1,7 +1,167 @@
 {
-    "cart" : {
+    "general": {
+        "newsletter": {
+            "label": "Email",
+            "success": "Thanks for subscribing!",
+            "button_label": "Subscribe",
+            "placeholder": "Enter your email address"
+        },
+        "forms": {
+            "submit": "Submit",
+            "required": "Required",
+            "email": "Email",
+            "password": "Password",
+            "first_name": "First Name",
+            "last_name": "Last Name"
+        },
+        "accessibility": {
+            "skip_to_content": "Skip to content",
+            "loading": "Loading...",
+            "error": "Error"
+        }
+    },
+    "newsletter": {
+        "label": "Email",
+        "success": "Thanks for subscribing!",
+        "button_label": "Subscribe",
+        "placeholder": "Enter your email address",
+        "consent": "I agree to receive marketing emails",
+        "privacy_policy": "Privacy Policy",
+        "unsubscribe": "You can unsubscribe at any time"
+    },
+    "customer": {
+        "login": {
+            "title": "Login",
+            "email": "Email",
+            "password": "Password",
+            "sign_in": "Sign In",
+            "forgot_password": "Forgot Password?",
+            "create_account": "Create Account",
+            "guest_title": "Continue as guest",
+            "guest_continue": "Continue"
+        },
+        "register": {
+            "title": "Create Account",
+            "first_name": "First Name",
+            "last_name": "Last Name",
+            "email": "Email",
+            "password": "Password",
+            "submit": "Create Account",
+            "already_have_account": "Already have an account?",
+            "sign_in_link": "Sign In",
+            "accepts_marketing": "Subscribe to email marketing"
+        },
+        "account": {
+            "title": "My Account",
+            "details": "Account Details",
+            "orders": "Order History",
+            "addresses": "Addresses",
+            "logout": "Logout"
+        },
+        "orders": {
+            "title": "Order History",
+            "order": "Order",
+            "date": "Date",
+            "payment_status": "Payment Status",
+            "fulfillment_status": "Fulfillment Status",
+            "total": "Total",
+            "none": "You haven't placed any orders yet."
+        },
+        "reset_password": {
+            "title": "Reset Password",
+            "subtext": "We will send you an email to reset your password",
+            "email": "Email",
+            "submit": "Submit",
+            "cancel": "Cancel",
+            "success": "We've sent you an email with a link to update your password."
+        }
+    },
+    "cart": {
         "title": "Your Cart",
         "empty": "Your cart is currently empty.",
         "continue_shopping": "Continue Shopping",
+        "general": {
+            "note": "Order Notes",
+            "note_placeholder": "Add special instructions for your order...",
+            "subtotal": "Subtotal",
+            "checkout": "Checkout",
+            "update": "Update Cart",
+            "remove": "Remove",
+            "quantity": "Quantity"
+        },
+        "items": {
+            "title": "Cart Items",
+            "quantity": "Qty",
+            "price": "Price",
+            "total": "Total"
+        }
+    },
+    "sections": {
+        "header": {
+            "menu": "Menu",
+            "cart": "Cart",
+            "account": "Account",
+            "search": "Search"
+        },
+        "footer": {
+            "newsletter_title": "Stay Connected",
+            "newsletter_text": "Subscribe for exclusive offers"
+        }
+    },
+    "blog": {
+        "article": {
+            "by_author": "by {{ author }}",
+            "posted_in": "Posted in",
+            "read_more": "Read more",
+            "back_to_blog": "Back to {{ title }}"
+        },
+        "comments": {
+            "title": "Leave a comment",
+            "name": "Name",
+            "email": "Email",
+            "message": "Message",
+            "post": "Post comment",
+            "success": "Your comment was posted successfully! Thank you!",
+            "success_moderated": "Your comment was posted successfully. We will publish it in a little while, as our blog is moderated."
+        }
+    },
+    "products": {
+        "general": {
+            "sale_price": "Sale price",
+            "regular_price": "Regular price",
+            "savings": "Save {{ amount }}",
+            "sold_out": "Sold Out",
+            "unavailable": "Unavailable",
+            "vendor": "Vendor",
+            "quantity": "Quantity",
+            "add_to_cart": "Add to Cart",
+            "view_full_details": "View full details"
+        },
+        "form": {
+            "choose_options": "Choose options",
+            "choose_product_options": "Choose options for {{ product_name }}",
+            "product_variants": "Product variants",
+            "product_options": "Product options",
+            "size_guide": "Size Guide"
+        }
+    },
+    "gift_cards": {
+        "issued": {
+            "title": "Here's your {{ value }} gift card for {{ shop }}!",
+            "subtext": "Your gift card",
+            "disabled": "Disabled",
+            "expired": "Expired on {{ expiry }}",
+            "active": "Expires on {{ expiry }}",
+            "redeem": "Use this code at checkout to redeem your gift card",
+            "shop_link": "Start shopping",
+            "print": "Print this gift card",
+            "remaining_html": "{{ balance }} left",
+            "add_to_apple_wallet": "Add to Apple Wallet"
+        }
+    },
+    "404": {
+        "title": "Sorry, we can't find that page",
+        "subtext": "You may have mistyped the address or the page may have moved.",
+        "link": "Continue shopping"
     }
 }

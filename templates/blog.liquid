@@ -1,0 +1,1023 @@
+{% comment %}
+Main Blog Template
+Displays blog posts with advanced filtering and pagination
+{% endcomment %}
+
+<div class="blog-container">
+  <div class="blog-header">
+    <div class="blog-hero">
+      {% if blog.image != blank %}
+        <div class="blog-hero-image">
+          <img src="{{ blog.image | img_url: '1200x400' }}" alt="{{ blog.title }}" loading="lazy">
+        </div>
+      {% endif %}
+      
+      <div class="blog-hero-content">
+        <div class="container">
+          <h1 class="blog-title">{{ blog.title }}</h1>
+          {% if blog.summary != blank %}
+            <p class="blog-description">{{ blog.summary }}</p>
+          {% endif %}
+          
+          {% if blog.tags.size > 0 %}
+            <div class="blog-tags">
+              <span class="tags-label">Topics:</span>
+              {% for tag in blog.tags limit: 5 %}
+                <a href="{{ blog.url }}/tagged/{{ tag | handle }}" class="tag-link">
+                  {{ tag }}
+                </a>
+              {% endfor %}
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="blog-content">
+    <div class="container">
+      <div class="blog-layout">
+        <!-- Main Content -->
+        <main class="blog-main" role="main">
+          {% comment %} Filter Bar {% endcomment %}
+          <div class="blog-filters">
+            <div class="filter-group">
+              <button class="filter-toggle" id="filter-toggle">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <line x1="4" y1="21" x2="4" y2="14" stroke="currentColor" stroke-width="2"/>
+                  <line x1="4" y1="10" x2="4" y2="3" stroke="currentColor" stroke-width="2"/>
+                  <line x1="12" y1="21" x2="12" y2="12" stroke="currentColor" stroke-width="2"/>
+                  <line x1="12" y1="8" x2="12" y2="3" stroke="currentColor" stroke-width="2"/>
+                  <line x1="20" y1="21" x2="20" y2="16" stroke="currentColor" stroke-width="2"/>
+                  <line x1="20" y1="12" x2="20" y2="3" stroke="currentColor" stroke-width="2"/>
+                  <line x1="1" y1="14" x2="7" y2="14" stroke="currentColor" stroke-width="2"/>
+                  <line x1="9" y1="8" x2="15" y2="8" stroke="currentColor" stroke-width="2"/>
+                  <line x1="17" y1="16" x2="23" y2="16" stroke="currentColor" stroke-width="2"/>
+                </svg>
+                Filter & Sort
+              </button>
+            </div>
+
+            <div class="filter-dropdown" id="filter-dropdown">
+              <div class="filter-section">
+                <h4>Sort By</h4>
+                <select class="sort-select" id="blog-sort">
+                  <option value="created_at">Newest First</option>
+                  <option value="created_at_reverse">Oldest First</option>
+                  <option value="title">Title A-Z</option>
+                  <option value="title_reverse">Title Z-A</option>
+                </select>
+              </div>
+
+              {% if blog.tags.size > 0 %}
+                <div class="filter-section">
+                  <h4>Filter by Topic</h4>
+                  <div class="tag-filters">
+                    <button class="tag-filter active" data-tag="">All Posts</button>
+                    {% for tag in blog.tags %}
+                      <button class="tag-filter" data-tag="{{ tag | handle }}">{{ tag }}</button>
+                    {% endfor %}
+                  </div>
+                </div>
+              {% endif %}
+            </div>
+
+            <div class="results-info">
+              <span class="results-count">{{ paginate.current_offset_first }}-{{ paginate.current_offset_last }} of {{ blog.articles_count }} posts</span>
+            </div>
+          </div>
+
+          {% comment %} Blog Posts Grid {% endcomment %}
+          {% paginate blog.articles by 9 %}
+            <div class="blog-grid" id="blog-grid">
+              {% for article in blog.articles %}
+                <article class="blog-card" data-tags="{{ article.tags | join: ' ' | handle }}">
+                  {% if article.image != blank %}
+                    <div class="blog-card-image">
+                      <a href="{{ article.url }}">
+                        <img src="{{ article.image | img_url: '400x250' }}" alt="{{ article.title }}" loading="lazy">
+                      </a>
+                      
+                      {% if article.tags.size > 0 %}
+                        <div class="blog-card-category">
+                          <span class="category-tag">{{ article.tags.first }}</span>
+                        </div>
+                      {% endif %}
+                    </div>
+                  {% endif %}
+
+                  <div class="blog-card-content">
+                    <div class="blog-card-meta">
+                      <time class="blog-date" datetime="{{ article.published_at | date: '%Y-%m-%d' }}">
+                        {{ article.published_at | date: '%B %d, %Y' }}
+                      </time>
+                      
+                      {% if article.author != blank %}
+                        <span class="blog-author">by {{ article.author }}</span>
+                      {% endif %}
+                      
+                      <span class="reading-time">{{ article.content | strip_html | truncatewords: 200 | size | divided_by: 200 | at_least: 1 }} min read</span>
+                    </div>
+
+                    <h2 class="blog-card-title">
+                      <a href="{{ article.url }}">{{ article.title }}</a>
+                    </h2>
+
+                    {% if article.excerpt != blank %}
+                      <p class="blog-card-excerpt">{{ article.excerpt | strip_html | truncatewords: 25 }}</p>
+                    {% else %}
+                      <p class="blog-card-excerpt">{{ article.content | strip_html | truncatewords: 25 }}</p>
+                    {% endif %}
+
+                    <div class="blog-card-footer">
+                      <a href="{{ article.url }}" class="read-more-btn">
+                        Read More
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <line x1="7" y1="17" x2="17" y2="7" stroke="currentColor" stroke-width="2"/>
+                          <polyline points="7,7 17,7 17,17" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                      </a>
+
+                      {% if article.tags.size > 1 %}
+                        <div class="blog-card-tags">
+                          {% for tag in article.tags limit: 2 offset: 1 %}
+                            <span class="tag-small">{{ tag }}</span>
+                          {% endfor %}
+                        </div>
+                      {% endif %}
+                    </div>
+                  </div>
+                </article>
+              {% else %}
+                <div class="blog-empty">
+                  <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="2"/>
+                    <polyline points="14,2 14,8 20,8" stroke="currentColor" stroke-width="2"/>
+                    <line x1="16" y1="13" x2="8" y2="13" stroke="currentColor" stroke-width="2"/>
+                    <line x1="16" y1="17" x2="8" y2="17" stroke="currentColor" stroke-width="2"/>
+                    <polyline points="10,9 9,9 8,9" stroke="currentColor" stroke-width="2"/>
+                  </svg>
+                  <h3>No articles found</h3>
+                  <p>There are no blog posts to display at the moment.</p>
+                </div>
+              {% endfor %}
+            </div>
+
+            {% comment %} Pagination {% endcomment %}
+            {% if paginate.pages > 1 %}
+              <nav class="blog-pagination" role="navigation" aria-label="Blog pagination">
+                <div class="pagination-wrapper">
+                  {% if paginate.previous %}
+                    <a href="{{ paginate.previous.url }}" class="pagination-btn pagination-prev">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <polyline points="15,18 9,12 15,6" stroke="currentColor" stroke-width="2"/>
+                      </svg>
+                      Previous
+                    </a>
+                  {% endif %}
+
+                  <div class="pagination-numbers">
+                    {% for part in paginate.parts %}
+                      {% if part.is_link %}
+                        <a href="{{ part.url }}" class="pagination-number">{{ part.title }}</a>
+                      {% else %}
+                        {% if part.title == paginate.current_page %}
+                          <span class="pagination-number current">{{ part.title }}</span>
+                        {% else %}
+                          <span class="pagination-ellipsis">{{ part.title }}</span>
+                        {% endif %}
+                      {% endif %}
+                    {% endfor %}
+                  </div>
+
+                  {% if paginate.next %}
+                    <a href="{{ paginate.next.url }}" class="pagination-btn pagination-next">
+                      Next
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <polyline points="9,18 15,12 9,6" stroke="currentColor" stroke-width="2"/>
+                      </svg>
+                    </a>
+                  {% endif %}
+                </div>
+              </nav>
+            {% endif %}
+          {% endpaginate %}
+        </main>
+
+        <!-- Sidebar -->
+        <aside class="blog-sidebar">
+          {% comment %} Search Widget {% endcomment %}
+          <div class="sidebar-widget">
+            <h3 class="widget-title">Search Posts</h3>
+            <form class="blog-search-form" action="{{ routes.search_url }}" method="get">
+              <input type="hidden" name="type" value="article">
+              <div class="search-input-group">
+                <input type="text" name="q" placeholder="Search articles..." class="search-input" value="{{ search.terms | escape }}">
+                <button type="submit" class="search-submit">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/>
+                    <path d="m21 21-4.35-4.35" stroke="currentColor" stroke-width="2"/>
+                  </svg>
+                </button>
+              </div>
+            </form>
+          </div>
+
+          {% comment %} Recent Posts {% endcomment %}
+          <div class="sidebar-widget">
+            <h3 class="widget-title">Recent Posts</h3>
+            <div class="recent-posts">
+              {% for article in blog.articles limit: 5 %}
+                <article class="recent-post">
+                  {% if article.image != blank %}
+                    <div class="recent-post-image">
+                      <a href="{{ article.url }}">
+                        <img src="{{ article.image | img_url: '80x80' }}" alt="{{ article.title }}" loading="lazy">
+                      </a>
+                    </div>
+                  {% endif %}
+                  
+                  <div class="recent-post-content">
+                    <h4 class="recent-post-title">
+                      <a href="{{ article.url }}">{{ article.title | truncatewords: 8 }}</a>
+                    </h4>
+                    <time class="recent-post-date">{{ article.published_at | date: '%B %d, %Y' }}</time>
+                  </div>
+                </article>
+              {% endfor %}
+            </div>
+          </div>
+
+          {% comment %} Categories/Tags {% endcomment %}
+          {% if blog.tags.size > 0 %}
+            <div class="sidebar-widget">
+              <h3 class="widget-title">Categories</h3>
+              <div class="tag-cloud">
+                {% for tag in blog.tags %}
+                  {% assign tag_count = 0 %}
+                  {% for article in blog.articles %}
+                    {% if article.tags contains tag %}
+                      {% assign tag_count = tag_count | plus: 1 %}
+                    {% endif %}
+                  {% endfor %}
+                  
+                  <a href="{{ blog.url }}/tagged/{{ tag | handle }}" class="tag-cloud-item">
+                    {{ tag }} <span class="tag-count">({{ tag_count }})</span>
+                  </a>
+                {% endfor %}
+              </div>
+            </div>
+          {% endif %}
+
+          {% comment %} Newsletter Signup {% endcomment %}
+          <div class="sidebar-widget newsletter-widget">
+            <h3 class="widget-title">Stay Updated</h3>
+            <p class="newsletter-desc">Get the latest posts delivered right to your inbox.</p>
+            
+            {% form 'customer', class: 'newsletter-form' %}
+              <input type="hidden" name="contact[tags]" value="newsletter,blog">
+              <div class="newsletter-input-group">
+                <input type="email" name="contact[email]" placeholder="Your email address" class="newsletter-input" required>
+                <button type="submit" class="newsletter-submit">Subscribe</button>
+              </div>
+            {% endform %}
+          </div>
+        </aside>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .blog-container {
+    min-height: 60vh;
+  }
+
+  .blog-hero {
+    position: relative;
+    background: linear-gradient(135deg, var(--color-primary, #333) 0%, var(--color-secondary, #666) 100%);
+    color: white;
+    padding: 60px 0;
+  }
+
+  .blog-hero-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+  }
+
+  .blog-hero-image::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 2;
+  }
+
+  .blog-hero-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .blog-hero-content {
+    position: relative;
+    z-index: 3;
+  }
+
+  .blog-title {
+    font-size: 3rem;
+    font-weight: 700;
+    margin: 0 0 16px 0;
+    line-height: 1.2;
+  }
+
+  .blog-description {
+    font-size: 1.2rem;
+    margin: 0 0 24px 0;
+    opacity: 0.9;
+    max-width: 600px;
+  }
+
+  .blog-tags {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .tags-label {
+    font-weight: 600;
+    font-size: 14px;
+  }
+
+  .tag-link {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 16px;
+    text-decoration: none;
+    font-size: 14px;
+    transition: all 0.3s ease;
+  }
+
+  .tag-link:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-1px);
+  }
+
+  .blog-content {
+    padding: 60px 0;
+  }
+
+  .blog-layout {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 60px;
+  }
+
+  .blog-filters {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 40px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #e8e8e8;
+  }
+
+  .filter-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--color-primary, #333);
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+  }
+
+  .filter-toggle:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+  }
+
+  .filter-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: white;
+    border: 1px solid #e8e8e8;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+    display: none;
+    min-width: 300px;
+  }
+
+  .filter-dropdown.active {
+    display: block;
+  }
+
+  .filter-section {
+    margin-bottom: 24px;
+  }
+
+  .filter-section:last-child {
+    margin-bottom: 0;
+  }
+
+  .filter-section h4 {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0 0 12px 0;
+    color: var(--color-primary, #333);
+  }
+
+  .sort-select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #e8e8e8;
+    border-radius: 6px;
+    background: white;
+    font-size: 14px;
+  }
+
+  .tag-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .tag-filter {
+    background: #f8f9fa;
+    border: 1px solid #e8e8e8;
+    color: var(--color-primary, #333);
+    padding: 6px 12px;
+    border-radius: 16px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .tag-filter:hover,
+  .tag-filter.active {
+    background: var(--color-primary, #333);
+    color: white;
+    border-color: var(--color-primary, #333);
+  }
+
+  .results-info {
+    font-size: 14px;
+    color: var(--color-secondary, #666);
+  }
+
+  .blog-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 30px;
+  }
+
+  .blog-card {
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    border: 1px solid #f0f0f0;
+  }
+
+  .blog-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.12);
+  }
+
+  .blog-card-image {
+    position: relative;
+    height: 200px;
+    overflow: hidden;
+  }
+
+  .blog-card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+
+  .blog-card:hover .blog-card-image img {
+    transform: scale(1.05);
+  }
+
+  .blog-card-category {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+  }
+
+  .category-tag {
+    background: var(--color-primary, #333);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .blog-card-content {
+    padding: 24px;
+  }
+
+  .blog-card-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+    font-size: 13px;
+    color: var(--color-secondary, #666);
+  }
+
+  .blog-date {
+    font-weight: 500;
+  }
+
+  .blog-author {
+    position: relative;
+    padding-left: 12px;
+  }
+
+  .blog-author::before {
+    content: '•';
+    position: absolute;
+    left: 0;
+  }
+
+  .reading-time {
+    position: relative;
+    padding-left: 12px;
+  }
+
+  .reading-time::before {
+    content: '•';
+    position: absolute;
+    left: 0;
+  }
+
+  .blog-card-title {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin: 0 0 12px 0;
+    line-height: 1.3;
+  }
+
+  .blog-card-title a {
+    color: var(--color-primary, #333);
+    text-decoration: none;
+    transition: color 0.3s ease;
+  }
+
+  .blog-card-title a:hover {
+    color: var(--color-accent, #007bff);
+  }
+
+  .blog-card-excerpt {
+    color: var(--color-secondary, #666);
+    line-height: 1.6;
+    margin: 0 0 20px 0;
+  }
+
+  .blog-card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .read-more-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--color-accent, #007bff);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 14px;
+    transition: all 0.3s ease;
+  }
+
+  .read-more-btn:hover {
+    color: var(--color-primary, #333);
+    transform: translateX(2px);
+  }
+
+  .blog-card-tags {
+    display: flex;
+    gap: 6px;
+  }
+
+  .tag-small {
+    background: #f8f9fa;
+    color: var(--color-secondary, #666);
+    padding: 2px 6px;
+    border-radius: 8px;
+    font-size: 11px;
+  }
+
+  .blog-empty {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--color-secondary, #666);
+  }
+
+  .blog-empty svg {
+    margin-bottom: 20px;
+    opacity: 0.5;
+  }
+
+  .blog-empty h3 {
+    font-size: 1.5rem;
+    margin: 0 0 8px 0;
+    color: var(--color-primary, #333);
+  }
+
+  /* Pagination */
+  .blog-pagination {
+    margin-top: 60px;
+  }
+
+  .pagination-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .pagination-btn,
+  .pagination-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 16px;
+    text-decoration: none;
+    color: var(--color-primary, #333);
+    border: 1px solid #e8e8e8;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    gap: 6px;
+    min-width: 44px;
+    height: 44px;
+  }
+
+  .pagination-btn:hover,
+  .pagination-number:hover {
+    background: var(--color-primary, #333);
+    color: white;
+    border-color: var(--color-primary, #333);
+  }
+
+  .pagination-number.current {
+    background: var(--color-primary, #333);
+    color: white;
+    border-color: var(--color-primary, #333);
+  }
+
+  .pagination-ellipsis {
+    padding: 8px 16px;
+    color: var(--color-secondary, #666);
+  }
+
+  /* Sidebar */
+  .blog-sidebar {
+    position: sticky;
+    top: 20px;
+    height: fit-content;
+  }
+
+  .sidebar-widget {
+    background: white;
+    border: 1px solid #f0f0f0;
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 24px;
+  }
+
+  .widget-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin: 0 0 20px 0;
+    color: var(--color-primary, #333);
+  }
+
+  .blog-search-form {
+    margin-bottom: 0;
+  }
+
+  .search-input-group {
+    display: flex;
+    border: 1px solid #e8e8e8;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .search-input {
+    flex: 1;
+    padding: 12px 16px;
+    border: none;
+    outline: none;
+    font-size: 14px;
+  }
+
+  .search-submit {
+    background: var(--color-primary, #333);
+    color: white;
+    border: none;
+    padding: 12px 16px;
+    cursor: pointer;
+    transition: opacity 0.3s ease;
+  }
+
+  .search-submit:hover {
+    opacity: 0.9;
+  }
+
+  .recent-posts {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .recent-post {
+    display: flex;
+    gap: 12px;
+  }
+
+  .recent-post-image {
+    flex-shrink: 0;
+  }
+
+  .recent-post-image img {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 8px;
+  }
+
+  .recent-post-content {
+    flex: 1;
+  }
+
+  .recent-post-title {
+    font-size: 14px;
+    font-weight: 500;
+    margin: 0 0 4px 0;
+    line-height: 1.3;
+  }
+
+  .recent-post-title a {
+    color: var(--color-primary, #333);
+    text-decoration: none;
+    transition: color 0.3s ease;
+  }
+
+  .recent-post-title a:hover {
+    color: var(--color-accent, #007bff);
+  }
+
+  .recent-post-date {
+    font-size: 12px;
+    color: var(--color-secondary, #666);
+  }
+
+  .tag-cloud {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .tag-cloud-item {
+    display: inline-flex;
+    align-items: center;
+    background: #f8f9fa;
+    color: var(--color-primary, #333);
+    padding: 6px 12px;
+    border-radius: 16px;
+    text-decoration: none;
+    font-size: 13px;
+    transition: all 0.3s ease;
+    gap: 4px;
+  }
+
+  .tag-cloud-item:hover {
+    background: var(--color-primary, #333);
+    color: white;
+  }
+
+  .tag-count {
+    font-size: 11px;
+    opacity: 0.7;
+  }
+
+  .newsletter-widget {
+    background: linear-gradient(135deg, var(--color-primary, #333), var(--color-secondary, #666));
+    color: white;
+  }
+
+  .newsletter-widget .widget-title {
+    color: white;
+  }
+
+  .newsletter-desc {
+    margin: 0 0 20px 0;
+    opacity: 0.9;
+    font-size: 14px;
+  }
+
+  .newsletter-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .newsletter-input {
+    padding: 12px 16px;
+    border: none;
+    border-radius: 8px;
+    outline: none;
+    font-size: 14px;
+  }
+
+  .newsletter-submit {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    padding: 12px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s ease;
+  }
+
+  .newsletter-submit:hover {
+    background: rgba(255, 255, 255, 0.3);
+  }
+
+  /* Mobile Responsive */
+  @media (max-width: 1024px) {
+    .blog-layout {
+      grid-template-columns: 1fr;
+      gap: 40px;
+    }
+
+    .blog-sidebar {
+      position: static;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .blog-hero {
+      padding: 40px 0;
+    }
+
+    .blog-title {
+      font-size: 2rem;
+    }
+
+    .blog-content {
+      padding: 40px 0;
+    }
+
+    .blog-grid {
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+
+    .blog-filters {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 16px;
+    }
+
+    .pagination-wrapper {
+      flex-wrap: wrap;
+    }
+
+    .blog-sidebar {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .blog-card-content {
+      padding: 20px;
+    }
+
+    .pagination-btn,
+    .pagination-number {
+      padding: 6px 12px;
+      font-size: 14px;
+      min-width: 36px;
+      height: 36px;
+    }
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const filterToggle = document.getElementById('filter-toggle');
+    const filterDropdown = document.getElementById('filter-dropdown');
+    const sortSelect = document.getElementById('blog-sort');
+    const tagFilters = document.querySelectorAll('.tag-filter');
+    const blogCards = document.querySelectorAll('.blog-card');
+
+    // Filter dropdown toggle
+    if (filterToggle && filterDropdown) {
+      filterToggle.addEventListener('click', function() {
+        filterDropdown.classList.toggle('active');
+      });
+
+      // Close dropdown when clicking outside
+      document.addEventListener('click', function(e) {
+        if (!filterToggle.contains(e.target) && !filterDropdown.contains(e.target)) {
+          filterDropdown.classList.remove('active');
+        }
+      });
+    }
+
+    // Sort functionality
+    if (sortSelect) {
+      sortSelect.addEventListener('change', function() {
+        const sortValue = this.value;
+        const url = new URL(window.location);
+        
+        if (sortValue && sortValue !== 'created_at') {
+          url.searchParams.set('sort_by', sortValue);
+        } else {
+          url.searchParams.delete('sort_by');
+        }
+        
+        window.location = url.toString();
+      });
+
+      // Set current sort value from URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const currentSort = urlParams.get('sort_by') || 'created_at';
+      sortSelect.value = currentSort;
+    }
+
+    // Tag filtering (client-side for better UX)
+    tagFilters.forEach(filter => {
+      filter.addEventListener('click', function() {
+        const tag = this.getAttribute('data-tag');
+        
+        // Update active state
+        tagFilters.forEach(f => f.classList.remove('active'));
+        this.classList.add('active');
+        
+        // Filter articles
+        blogCards.forEach(card => {
+          const cardTags = card.getAttribute('data-tags');
+          
+          if (!tag || cardTags.includes(tag)) {
+            card.style.display = 'block';
+          } else {
+            card.style.display = 'none';
+          }
+        });
+
+        // Update URL for deep linking
+        const url = new URL(window.location);
+        if (tag) {
+          url.pathname = url.pathname.replace('/tagged/' + url.pathname.split('/tagged/')[1], '') + '/tagged/' + tag;
+        } else {
+          url.pathname = url.pathname.replace(/\/tagged\/[^\/]*/, '');
+        }
+        
+        // Update browser history without page reload
+        history.pushState(null, '', url.toString());
+      });
+    });
+
+    // Set active tag from URL
+    const currentPath = window.location.pathname;
+    if (currentPath.includes('/tagged/')) {
+      const currentTag = currentPath.split('/tagged/')[1];
+      const activeFilter = document.querySelector(`[data-tag="${currentTag}"]`);
+      if (activeFilter) {
+        tagFilters.forEach(f => f.classList.remove('active'));
+        activeFilter.classList.add('active');
+      }
+    }
+  });
+</script>

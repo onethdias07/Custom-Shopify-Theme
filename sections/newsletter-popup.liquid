@@ -1,0 +1,885 @@
+{% comment %}
+Newsletter Popup
+Can be triggered on page load, exit intent, or time delay
+{% endcomment %}
+
+{% if section.settings.enable_popup %}
+<div class="newsletter-popup-overlay" id="newsletter-popup" style="display: none;">
+  <div class="newsletter-popup">
+    <button class="popup-close" id="popup-close" aria-label="Close popup">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <line x1="18" y1="6" x2="6" y2="18" stroke="currentColor" stroke-width="2"/>
+        <line x1="6" y1="6" x2="18" y2="18" stroke="currentColor" stroke-width="2"/>
+      </svg>
+    </button>
+
+    <div class="popup-content">
+      {% if section.settings.popup_image != blank %}
+        <div class="popup-image">
+          <img src="{{ section.settings.popup_image | img_url: '600x400' }}" alt="{{ section.settings.popup_heading }}">
+        </div>
+      {% endif %}
+
+      <div class="popup-text">
+        {% if section.settings.popup_badge != blank %}
+          <div class="popup-badge">{{ section.settings.popup_badge }}</div>
+        {% endif %}
+
+        {% if section.settings.popup_heading != blank %}
+          <h2 class="popup-heading">{{ section.settings.popup_heading }}</h2>
+        {% endif %}
+
+        {% if section.settings.popup_subheading != blank %}
+          <p class="popup-subheading">{{ section.settings.popup_subheading }}</p>
+        {% endif %}
+
+        {% if section.settings.show_popup_discount %}
+          <div class="discount-offer">
+            <div class="discount-code">{{ section.settings.discount_code | default: 'WELCOME10' }}</div>
+            <div class="discount-text">{{ section.settings.discount_text | default: 'Get 10% off your first order' }}</div>
+          </div>
+        {% endif %}
+
+        {% comment %} Popup Newsletter Form {% endcomment %}
+        {% form 'customer', class: 'popup-newsletter-form', id: 'popup-newsletter-form' %}
+          <input type="hidden" name="contact[tags]" value="newsletter,popup">
+          
+          <div class="popup-form-success" id="popup-newsletter-success" style="display: none;">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" stroke="currentColor" stroke-width="2"/>
+              <polyline points="22,4 12,14.01 9,11.01" stroke="currentColor" stroke-width="2"/>
+            </svg>
+            <h3>{{ section.settings.popup_success_heading | default: 'You are all set!' }}</h3>
+            <p>{{ section.settings.popup_success_message | default: 'Check your email for your discount code.' }}</p>
+          </div>
+
+          <div class="popup-form-content" id="popup-newsletter-form-content">
+            <div class="popup-input-group">
+              <input 
+                type="email" 
+                name="contact[email]" 
+                id="popup-newsletter-email"
+                class="popup-newsletter-input" 
+                placeholder="{{ section.settings.popup_placeholder | default: 'Enter your email for exclusive offers' }}"
+                required
+                autocomplete="email">
+              
+              <button type="submit" class="popup-newsletter-button" id="popup-newsletter-submit">
+                <span class="popup-btn-text">{{ section.settings.popup_button_text | default: 'Get My Discount' }}</span>
+                <span class="popup-btn-loading" style="display: none;">
+                  <svg class="popup-spinner" width="20" height="20" viewBox="0 0 24 24">
+                    <circle class="popup-spinner-path" cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/>
+                  </svg>
+                </span>
+              </button>
+            </div>
+
+            {% if section.settings.show_popup_consent %}
+              <div class="popup-consent-wrapper">
+                <label class="popup-consent-checkbox">
+                  <input type="checkbox" name="contact[accepts_marketing]" value="1" required>
+                  <span class="popup-checkmark"></span>
+                  <span class="popup-consent-text">
+                    {{ section.settings.popup_consent_text | default: 'I agree to receive marketing emails.' }}
+                  </span>
+                </label>
+              </div>
+            {% endif %}
+
+            <div class="popup-form-error" id="popup-newsletter-error" style="display: none;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                <line x1="15" y1="9" x2="9" y2="15" stroke="currentColor" stroke-width="2"/>
+                <line x1="9" y1="9" x2="15" y2="15" stroke="currentColor" stroke-width="2"/>
+              </svg>
+              <span id="popup-error-message">Please enter a valid email address.</span>
+            </div>
+
+            {% if section.settings.show_popup_disclaimer %}
+              <p class="popup-disclaimer">
+                {{ section.settings.popup_disclaimer_text | default: 'No spam. Unsubscribe anytime.' }}
+              </p>
+            {% endif %}
+          </div>
+        {% endform %}
+
+        {% if section.settings.show_no_thanks %}
+          <button class="no-thanks-btn" id="no-thanks-btn">
+            {{ section.settings.no_thanks_text | default: 'No thanks, I will pay full price' }}
+          </button>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .newsletter-popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    backdrop-filter: blur(4px);
+    animation: fadeIn 0.3s ease-out;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  .newsletter-popup {
+    background: white;
+    border-radius: 16px;
+    max-width: 600px;
+    width: 100%;
+    max-height: 80vh;
+    overflow: hidden;
+    position: relative;
+    animation: slideUp 0.4s ease-out;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px) scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  .popup-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: rgba(0, 0, 0, 0.5);
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: white;
+    transition: all 0.2s ease;
+    z-index: 1;
+  }
+
+  .popup-close:hover {
+    background: rgba(0, 0, 0, 0.7);
+    transform: scale(1.1);
+  }
+
+  .popup-content {
+    display: flex;
+    min-height: 400px;
+  }
+
+  .popup-image {
+    flex: 1;
+    background: var(--color-primary, #f8f9fa);
+  }
+
+  .popup-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .popup-text {
+    flex: 1;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .popup-badge {
+    display: inline-block;
+    background: var(--color-primary, #333);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 16px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 16px;
+    align-self: center;
+  }
+
+  .popup-heading {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--color-primary, #333);
+    margin: 0 0 12px 0;
+    line-height: 1.2;
+  }
+
+  .popup-subheading {
+    font-size: 1rem;
+    color: var(--color-secondary, #666);
+    margin: 0 0 24px 0;
+    line-height: 1.5;
+  }
+
+  .discount-offer {
+    background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+    color: white;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 24px;
+  }
+
+  .discount-code {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+    letter-spacing: 1px;
+  }
+
+  .discount-text {
+    font-size: 14px;
+    opacity: 0.9;
+  }
+
+  .popup-newsletter-form {
+    margin-bottom: 20px;
+  }
+
+  .popup-input-group {
+    margin-bottom: 16px;
+  }
+
+  .popup-newsletter-input {
+    width: 100%;
+    padding: 14px 16px;
+    border: 2px solid #e8e8e8;
+    border-radius: 8px;
+    font-size: 16px;
+    margin-bottom: 12px;
+    transition: border-color 0.3s ease;
+  }
+
+  .popup-newsletter-input:focus {
+    outline: none;
+    border-color: var(--color-primary, #333);
+  }
+
+  .popup-newsletter-button {
+    width: 100%;
+    padding: 14px 24px;
+    background: var(--color-primary, #333);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .popup-newsletter-button:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+  }
+
+  .popup-newsletter-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .popup-btn-loading {
+    display: none !important;
+  }
+
+  .popup-newsletter-button.loading .popup-btn-text {
+    display: none;
+  }
+
+  .popup-newsletter-button.loading .popup-btn-loading {
+    display: flex !important;
+  }
+
+  .popup-consent-wrapper {
+    margin-bottom: 16px;
+  }
+
+  .popup-consent-checkbox {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    text-align: left;
+  }
+
+  .popup-consent-checkbox input[type="checkbox"] {
+    display: none;
+  }
+
+  .popup-checkmark {
+    width: 16px;
+    height: 16px;
+    border: 2px solid #e8e8e8;
+    border-radius: 3px;
+    background: white;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+    margin-top: 1px;
+    position: relative;
+  }
+
+  .popup-consent-checkbox input[type="checkbox"]:checked + .popup-checkmark {
+    background: var(--color-primary, #333);
+    border-color: var(--color-primary, #333);
+  }
+
+  .popup-consent-checkbox input[type="checkbox"]:checked + .popup-checkmark:after {
+    content: '';
+    position: absolute;
+    left: 4px;
+    top: 1px;
+    width: 3px;
+    height: 7px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+  }
+
+  .popup-form-success {
+    text-align: center;
+    color: var(--color-success, #28a745);
+  }
+
+  .popup-form-success svg {
+    margin-bottom: 16px;
+  }
+
+  .popup-form-success h3 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin: 0 0 8px 0;
+    color: var(--color-primary, #333);
+  }
+
+  .popup-form-success p {
+    margin: 0;
+    color: var(--color-secondary, #666);
+  }
+
+  .popup-form-error {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #ff6b6b;
+    font-size: 14px;
+    margin-top: 8px;
+    justify-content: center;
+  }
+
+  .popup-disclaimer {
+    font-size: 12px;
+    color: var(--color-secondary, #999);
+    margin: 8px 0 0 0;
+    text-align: center;
+  }
+
+  .no-thanks-btn {
+    background: none;
+    border: none;
+    color: var(--color-secondary, #666);
+    font-size: 14px;
+    cursor: pointer;
+    text-decoration: underline;
+    margin-top: 16px;
+  }
+
+  .no-thanks-btn:hover {
+    color: var(--color-primary, #333);
+  }
+
+  /* Spinner Animation */
+  .popup-spinner {
+    animation: popupSpin 1s linear infinite;
+  }
+
+  .popup-spinner-path {
+    stroke-dasharray: 90, 150;
+    stroke-dashoffset: 0;
+    stroke-linecap: round;
+  }
+
+  @keyframes popupSpin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  /* Mobile Responsive */
+  @media (max-width: 768px) {
+    .newsletter-popup-overlay {
+      padding: 10px;
+    }
+
+    .newsletter-popup {
+      max-height: 90vh;
+    }
+
+    .popup-content {
+      flex-direction: column;
+      min-height: auto;
+    }
+
+    .popup-image {
+      height: 200px;
+    }
+
+    .popup-text {
+      padding: 30px 20px;
+    }
+
+    .popup-heading {
+      font-size: 1.5rem;
+    }
+
+    .popup-close {
+      top: 12px;
+      right: 12px;
+      width: 36px;
+      height: 36px;
+    }
+  }
+
+  /* No image layout */
+  .popup-content:not(:has(.popup-image)) .popup-text {
+    max-width: 100%;
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const popup = document.getElementById('newsletter-popup');
+    const closeBtn = document.getElementById('popup-close');
+    const noThanksBtn = document.getElementById('no-thanks-btn');
+    const popupForm = document.getElementById('popup-newsletter-form');
+    
+    // Popup settings from Liquid
+    const popupSettings = {
+      enabled: {{ section.settings.enable_popup | json }},
+      trigger: '{{ section.settings.popup_trigger }}',
+      delay: {{ section.settings.popup_delay | default: 5000 }},
+      exitIntent: {{ section.settings.exit_intent | json }},
+      showOnce: {{ section.settings.show_once | json }},
+      cookieDays: {{ section.settings.cookie_days | default: 30 }}
+    };
+
+    // Check if popup should be shown
+    if (!popupSettings.enabled || hasSeenPopup()) {
+      return;
+    }
+
+    // Initialize popup based on trigger
+    if (popupSettings.trigger === 'immediate') {
+      setTimeout(showPopup, 1000);
+    } else if (popupSettings.trigger === 'delay') {
+      setTimeout(showPopup, popupSettings.delay);
+    } else if (popupSettings.trigger === 'scroll') {
+      window.addEventListener('scroll', onScroll);
+    }
+
+    // Exit intent detection
+    if (popupSettings.exitIntent) {
+      document.addEventListener('mouseleave', onMouseLeave);
+    }
+
+    // Close popup events
+    if (closeBtn) {
+      closeBtn.addEventListener('click', closePopup);
+    }
+
+    if (noThanksBtn) {
+      noThanksBtn.addEventListener('click', closePopup);
+    }
+
+    // Click outside to close
+    if (popup) {
+      popup.addEventListener('click', function(e) {
+        if (e.target === popup) {
+          closePopup();
+        }
+      });
+    }
+
+    // Form submission
+    if (popupForm) {
+      popupForm.addEventListener('submit', handlePopupSubmit);
+    }
+
+    function showPopup() {
+      if (popup && !hasSeenPopup()) {
+        popup.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+        
+        // Track that popup was shown
+        if (popupSettings.showOnce) {
+          setPopupCookie();
+        }
+      }
+    }
+
+    function closePopup() {
+      if (popup) {
+        popup.style.display = 'none';
+        document.body.style.overflow = '';
+        
+        // Set cookie to not show again
+        setPopupCookie();
+      }
+    }
+
+    function onScroll() {
+      const scrollPercent = (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100;
+      if (scrollPercent > 50) {
+        showPopup();
+        window.removeEventListener('scroll', onScroll);
+      }
+    }
+
+    function onMouseLeave(e) {
+      if (e.clientY <= 0 && !hasSeenPopup()) {
+        showPopup();
+        document.removeEventListener('mouseleave', onMouseLeave);
+      }
+    }
+
+    function handlePopupSubmit(e) {
+      e.preventDefault();
+      
+      const submitBtn = document.getElementById('popup-newsletter-submit');
+      const formContent = document.getElementById('popup-newsletter-form-content');
+      const successMessage = document.getElementById('popup-newsletter-success');
+      const errorMessage = document.getElementById('popup-newsletter-error');
+      const emailInput = document.getElementById('popup-newsletter-email');
+
+      // Validate email
+      const email = emailInput.value.trim();
+      if (!isValidEmail(email)) {
+        showPopupError('Please enter a valid email address.');
+        return;
+      }
+
+      // Check consent if required
+      const consentCheckbox = popupForm.querySelector('input[name="contact[accepts_marketing]"]');
+      if (consentCheckbox && !consentCheckbox.checked) {
+        showPopupError('Please agree to receive marketing emails.');
+        return;
+      }
+
+      // Show loading state
+      submitBtn.classList.add('loading');
+      submitBtn.disabled = true;
+      hidePopupError();
+
+      // Submit form via AJAX
+      const formData = new FormData(popupForm);
+      
+      fetch(popupForm.action || window.location.href, {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'Accept': 'application/json',
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success || data.status === 'success') {
+          formContent.style.display = 'none';
+          successMessage.style.display = 'block';
+          
+          // Close popup after success
+          setTimeout(() => {
+            closePopup();
+          }, 3000);
+        } else {
+          throw new Error(data.message || 'Subscription failed');
+        }
+      })
+      .catch(error => {
+        showPopupError(error.message || 'Something went wrong. Please try again.');
+      })
+      .finally(() => {
+        submitBtn.classList.remove('loading');
+        submitBtn.disabled = false;
+      });
+    }
+
+    function showPopupError(message) {
+      const errorMessage = document.getElementById('popup-newsletter-error');
+      const errorText = document.getElementById('popup-error-message');
+      if (errorMessage && errorText) {
+        errorText.textContent = message;
+        errorMessage.style.display = 'flex';
+      }
+    }
+
+    function hidePopupError() {
+      const errorMessage = document.getElementById('popup-newsletter-error');
+      if (errorMessage) {
+        errorMessage.style.display = 'none';
+      }
+    }
+
+    function isValidEmail(email) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return emailRegex.test(email);
+    }
+
+    function hasSeenPopup() {
+      return getCookie('newsletter_popup_shown') === 'true';
+    }
+
+    function setPopupCookie() {
+      const expiryDate = new Date();
+      expiryDate.setTime(expiryDate.getTime() + (popupSettings.cookieDays * 24 * 60 * 60 * 1000));
+      document.cookie = `newsletter_popup_shown=true; expires=${expiryDate.toUTCString()}; path=/`;
+    }
+
+    function getCookie(name) {
+      const nameEQ = name + "=";
+      const ca = document.cookie.split(';');
+      for (let i = 0; i < ca.length; i++) {
+        let c = ca[i];
+        while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+      }
+      return null;
+    }
+
+    // Keyboard escape to close
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && popup && popup.style.display === 'flex') {
+        closePopup();
+      }
+    });
+  });
+</script>
+{% endif %}
+
+{% schema %}
+{
+  "name": "Newsletter Popup",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Popup Settings"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_popup",
+      "label": "Enable newsletter popup",
+      "default": false
+    },
+    {
+      "type": "select",
+      "id": "popup_trigger",
+      "label": "Trigger type",
+      "options": [
+        {
+          "value": "immediate",
+          "label": "Immediate (1 second)"
+        },
+        {
+          "value": "delay",
+          "label": "Time delay"
+        },
+        {
+          "value": "scroll",
+          "label": "Scroll (50%)"
+        }
+      ],
+      "default": "delay"
+    },
+    {
+      "type": "number",
+      "id": "popup_delay",
+      "label": "Delay in seconds",
+      "default": 5,
+      "info": "Only applies to 'Time delay' trigger"
+    },
+    {
+      "type": "checkbox",
+      "id": "exit_intent",
+      "label": "Show on exit intent",
+      "default": true,
+      "info": "Show popup when user moves mouse to leave page"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_once",
+      "label": "Show only once per visitor",
+      "default": true
+    },
+    {
+      "type": "number",
+      "id": "cookie_days",
+      "label": "Cookie expiry (days)",
+      "default": 30,
+      "info": "How long to remember that user saw popup"
+    },
+    {
+      "type": "header",
+      "content": "Visual Design"
+    },
+    {
+      "type": "image_picker",
+      "id": "popup_image",
+      "label": "Popup image",
+      "info": "Optional side image for split layout"
+    },
+    {
+      "type": "text",
+      "id": "popup_badge",
+      "label": "Badge text",
+      "default": "EXCLUSIVE OFFER"
+    },
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "text",
+      "id": "popup_heading",
+      "label": "Heading",
+      "default": "Get 10% Off Your First Order"
+    },
+    {
+      "type": "textarea",
+      "id": "popup_subheading",
+      "label": "Subheading",
+      "default": "Subscribe to our newsletter and unlock exclusive deals, early access to sales, and style inspiration."
+    },
+    {
+      "type": "header",
+      "content": "Discount Offer"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_popup_discount",
+      "label": "Show discount code",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "discount_code",
+      "label": "Discount code",
+      "default": "WELCOME10"
+    },
+    {
+      "type": "text",
+      "id": "discount_text",
+      "label": "Discount description",
+      "default": "Get 10% off your first order"
+    },
+    {
+      "type": "header",
+      "content": "Form"
+    },
+    {
+      "type": "text",
+      "id": "popup_placeholder",
+      "label": "Email placeholder",
+      "default": "Enter your email for exclusive offers"
+    },
+    {
+      "type": "text",
+      "id": "popup_button_text",
+      "label": "Button text",
+      "default": "Get My Discount"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_popup_consent",
+      "label": "Show consent checkbox",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "popup_consent_text",
+      "label": "Consent text",
+      "default": "I agree to receive marketing emails."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_popup_disclaimer",
+      "label": "Show disclaimer",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "popup_disclaimer_text",
+      "label": "Disclaimer text",
+      "default": "No spam. Unsubscribe anytime."
+    },
+    {
+      "type": "header",
+      "content": "No Thanks Option"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_no_thanks",
+      "label": "Show 'No thanks' button",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "no_thanks_text",
+      "label": "No thanks text",
+      "default": "No thanks, I will pay full price"
+    },
+    {
+      "type": "header",
+      "content": "Success Message"
+    },
+    {
+      "type": "text",
+      "id": "popup_success_heading",
+      "label": "Success heading",
+      "default": "You're all set!"
+    },
+    {
+      "type": "text",
+      "id": "popup_success_message",
+      "label": "Success message",
+      "default": "Check your email for your discount code."
+    }
+  ],
+  "presets": [
+    {
+      "name": "Newsletter Popup"
+    }
+  ]
+}
+{% endschema %}
